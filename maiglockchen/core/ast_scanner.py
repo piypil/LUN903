@@ -1,6 +1,5 @@
 from ast import operator
 
-
 class Scanner(object):
     """
         A class to scanning solidity unit object.

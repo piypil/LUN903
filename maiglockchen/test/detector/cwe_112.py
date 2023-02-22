@@ -1,15 +1,18 @@
+# detectors
+# https://github.com/SonarSource/sonar-python/blob/master/python-checks/src/main/java/org/sonar/python/checks/TooManyLinesInFunctionCheck.java
 import sys
-import pprint
-
-from ast_scanner import Scanner
+sys.path.insert(1, '../core')
+import ast_scanner
 from solidity_parser.parser import parse_file, objectify
 
-path = 'testSolidity/SWC_112.sol'
+path = 'THIS'
 source_unit = parse_file(path, loc=True)
 source_unit_object = objectify(source_unit, path)
-scanner = Scanner(source_unit_object)
+scanner = ast_scanner.Scanner(source_unit_object)
 
-def check(scan: Scanner):
+rulekey ="S000112"
+
+def check(scan: ast_scanner.Scanner):
     for function in scan.functions:
         if "onlyOwner" in function.modifiers:
             continue
@@ -30,4 +33,3 @@ def check(scan: Scanner):
                     print(scan.fileName)
                     print(functionCall.loc)
                     print(function.functionObject.declarations[address].loc)
-check(scanner)
