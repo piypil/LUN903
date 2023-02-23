@@ -1,5 +1,6 @@
 # detectors
-# https://github.com/SonarSource/sonar-python/blob/master/python-checks/src/main/java/org/sonar/python/checks/TooManyLinesInFunctionCheck.java
+# https://github.com/SonarSource/sonar-python/tree/master/python-frontend/src/main/java/org/sonar/plugins/python/api
+
 import sys
 sys.path.insert(1, '../core')
 import ast_scanner
