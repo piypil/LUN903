@@ -16,6 +16,5 @@ Solving SAST analysis problems:
 - Using machine learning to automatically detect vulnerabilities.
 
 Tools used
-SAST: Bandit 1.7.4, ESLint, CodeQL.
+SAST: Bandit 1.7.4, ESLint.
 DAST: ZAP (Zed Attack Proxy).
-Machine learning: TensorFlow, Keras.
