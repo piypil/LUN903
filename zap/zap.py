@@ -12,10 +12,10 @@ logging.basicConfig(
     filemode='w'
 )
 
-
 target = 'https://public-firing-range.appspot.com'
 apiKey = '8cc4fb02-19d2-4348-a276-43c7f73ab822'
-zap = ZAPv2(apikey=apiKey)
+
+zap = ZAPv2(apikey=apiKey, proxies={'http': 'http://127.0.0.1:8080', 'https': 'http://127.0.0.1:8080'})
 
 scanID = zap.spider.scan(target)
 while int(zap.spider.status(scanID)) < 100:
@@ -34,10 +34,6 @@ while zap.ajaxSpider.status == 'running':
     logging.info('Ajax Spider status' + zap.ajaxSpider.status)
     time.sleep(2)
 ajaxResults = zap.ajaxSpider.results(start=0, count=10)
-
-
-
-zap = ZAPv2(apikey=apiKey, proxies={'http': 'http://127.0.0.1:8080', 'https': 'http://127.0.0.1:8080'})
 
 logging.info('Active Scanning target {}'.format(target))
 scanID = zap.ascan.scan(target)
