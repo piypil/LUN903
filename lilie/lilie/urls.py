@@ -21,5 +21,6 @@ from backend_api.views import *
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', BanditModelsView.as_view(), name='WAHHH')
+    path('', BanditModelsView.as_view(), name='WAHHH'),
+    path('upload_file/', upload_file, name = "files" )
 ]
