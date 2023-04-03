@@ -1,0 +1,8 @@
+.codeBlock {
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.codeBlock:hover {
+    background-color: rgba(0, 0, 0, 0.050);
+}
