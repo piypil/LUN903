@@ -19,7 +19,7 @@ export default function DashboardLayout() {
     token: { colorBgContainer },
   } = theme.useToken();
   return (
-    <Layout>
+    <Layout style={{minHeight:'100vh'}}>
       <Sider trigger={null} collapsible collapsed={collapsed}>
         <div className="logo" />
         <Menu
@@ -46,7 +46,7 @@ export default function DashboardLayout() {
           ]}
         />
       </Sider>
-      <Layout className="site-layout">
+      <Layout className="site-layout" style={{maxHeight:'100vh', overflow:'auto'}}>
         <Header style={{ padding: 0, background: colorBgContainer }}>
           {React.createElement(collapsed ? MenuUnfoldOutlined : MenuFoldOutlined, {
             className: 'trigger',
@@ -57,7 +57,7 @@ export default function DashboardLayout() {
           style={{
             margin: '24px 16px',
             padding: 24,
-            minHeight: '100vh',
+            maxHeight: '100%',
             background: colorBgContainer,
           }}
         >
