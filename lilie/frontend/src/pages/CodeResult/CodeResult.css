@@ -1,0 +1,10 @@
+.codeBlock {
+    padding: 10px;
+    display: inline-block;
+    border-radius: 5px;
+    cursor: pointer 
+}
+
+.codeBlock:hover {
+    background-color: rgba(0, 0, 0, 0.144);
+}
