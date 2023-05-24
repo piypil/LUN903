@@ -5,6 +5,7 @@ from .serializer import BanditModelsSerializer
 from rest_framework.response import Response
 from django.http import HttpResponseRedirect
 from .forms import UploadFileForm
+from .kamille import bandit_scan
 
 import zipfile
 import psycopg2
@@ -12,7 +13,6 @@ import random
 import os
 import string
 import glob
-import bandit_scan
 
 class BanditModelsView(APIView):
     def get(self, request):
