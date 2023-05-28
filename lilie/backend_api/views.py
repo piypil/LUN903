@@ -13,6 +13,7 @@ import random
 import os
 import string
 import glob
+import config
 
 class BanditModelsView(APIView):
     def get(self, request):
@@ -58,11 +59,11 @@ def extract_zip_file(file_data):
 
 def connect_to_database():
     conn = psycopg2.connect(
-        dbname="stiefmutterchen",
-        user="admin",
-        password="root",
-        host="127.0.0.1",
-        port="5432"
+        dbname=config.DB_NAME,
+        user=config.DB_USER,
+        password=config.DB_PASS,
+        host=config.DB_HOST,
+        port=config.DB_PORT
     )
     return conn
 
