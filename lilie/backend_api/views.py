@@ -16,6 +16,7 @@ import glob
 import config
 
 class BanditModelsView(APIView):
+    '''
     def get(self, request):
         output = [
             {
@@ -34,6 +35,9 @@ class BanditModelsView(APIView):
             } for output in BanditModels.objects.all()
         ]
         return Response(output)
+    '''
+    def get(self, request):
+        return Response('frontend/index.html')
 
     def post(self, request):
         serializer = BanditModelsSerializer(data=request.data)
@@ -49,9 +53,9 @@ def get_file_data(cursor, file_id):
     cursor.execute("SELECT file FROM backend_api_uploadedfile WHERE name = %s", (file_id,))
     return cursor.fetchone()[0]
 
-def extract_zip_file(file_data):
-    random_id = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
-    path = f"project_scann/{random_id}"
+def extract_zip_file(file_data, random_id):
+    id_project = random_id
+    path = f"project_scann/{id_project}"
     os.makedirs(path)
     with zipfile.ZipFile(file_data) as myzip:
         myzip.extractall(path=path)
@@ -69,9 +73,13 @@ def connect_to_database():
 
 def upload_file(request):
     if request.method == 'POST':
-        form = UploadFileForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
+        random_id = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
+        form = UploadFileForm(request.POST, request.FILES, random_id)
+        try:
+            if form.is_valid():
+                form.save()
+        except:
+            print('Form is not valide')
 
         conn = connect_to_database()
         with conn.cursor() as cur:
@@ -80,7 +88,7 @@ def upload_file(request):
             cur.close()
         conn.close()
 
-        path = extract_zip_file(file_data)
+        path = extract_zip_file(file_data, random_id)
         b = bandit_scan.Bandit(path)
         b.scan_direct()
         return render(request, 'upload_success.html')

@@ -17,5 +17,6 @@ class BanditModels(models.Model):
 
 class UploadedFile(models.Model):
     name = models.CharField(max_length=255)
+    project_id = models.CharField(max_length=10)
     file = models.FileField(upload_to='uploads/')
     uploaded_at = models.DateTimeField(auto_now_add=True)
