@@ -18,3 +18,11 @@ Solving SAST analysis problems:
 Tools used
 SAST: Bandit 1.7.4, ESLint.
 DAST: ZAP (Zed Attack Proxy).
+
+**Frontend**
+
+- `npm i`
+
+- `npm run build`
+
+- `npm run preview`
