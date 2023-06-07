@@ -4,15 +4,11 @@ import UploadProject from './components/Upload';
 
 const { Title, Paragraph, Text, Link } = Typography
 
-const { Header, Sider, Content } = Layout;
-
-
 export default function ClientDashboard() {
-
-
+  
   return (
     <div>
-      <Row style={{ marginBottom: 16 }}>
+      <Row style={{ marginBottom: 16,}}>
         <Col span={8}>
           <Title level={4}>Загрузите проект</Title>
           <Input size='large' placeholder="Название проекта" />
