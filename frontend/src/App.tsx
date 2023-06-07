@@ -1,26 +1,33 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import './App.css'
+import ClientDashboard from './pages/ClientDashboard/ClientDashboard'
+import CodeResult from './pages/CodeResult/CodeResult'
+import DashboardLayout from './layouts/DashboardLayout'
+import { ConfigProvider } from 'antd'
 
 function App() {
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+    <BrowserRouter>
+      <ConfigProvider
+        theme={{
+          components: {
+            Typography: {
+              colorWarning: '#ff8c00'
+            }
+          }
+        }}
         >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+      <Routes>
+        <Route path='/' element={<DashboardLayout/>}>
+          <Route path='/dashboard' element={<ClientDashboard/>}/>
+          <Route path='/analyze' element={<CodeResult/>}/>
+        </Route>
+
+      </Routes>
+      </ConfigProvider>
+    </BrowserRouter>
+  )
 }
 
-export default App;
+export default App
