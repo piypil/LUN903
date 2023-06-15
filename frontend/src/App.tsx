@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -6,16 +7,19 @@ import {
   PieChartOutlined,
 } from '@ant-design/icons';
 import { Layout, Menu, Button, theme } from 'antd';
-import ClientDashboard from './pages/ClientDashboard/ClientDashboard'
+import ClientDashboard from './components/ClientDashboard'
 
 const { Header, Sider, Content } = Layout;
 
 const App: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
+  const upload = () => {
+    axios.post(`${process.env.REACT_APP_API_URL}/upload`);
+  };
   const {
     token: { colorBgContainer },
   } = theme.useToken();
-
+  
   return (
     <Layout style={{minHeight:'100vh'}}>
       <Sider trigger={null} collapsible collapsed={collapsed}>
