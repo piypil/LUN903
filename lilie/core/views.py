@@ -2,12 +2,15 @@ import zipfile
 import psycopg2
 import os
 import config
-import time
+import json
 
 
 from rest_framework import viewsets
+from rest_framework.views import APIView
 from rest_framework.response import Response
-from .models import Files
+from django.db import transaction
+
+from .models import Files, Results
 from .serializer import FilesSerializer
 from .kamille import bandit_scan
 
@@ -49,15 +52,37 @@ def upload_file():
         b.scan_direct()
         cur.close()
     conn.close()
-    
+
+    with open(path + '/result', 'r') as json_file:
+        results = json.load(json_file)
+
+    with transaction.atomic():
+        file_instance = Files.objects.get(id=file_id)
+        results_instance = Results(file=file_instance, result_data=results)
+        results_instance.save()
+
+
 class FilesViewSet(viewsets.ModelViewSet):
     queryset = Files.objects.all()
     serializer_class = FilesSerializer
 
     def create(self, request, *args, **kwargs):
-        response = super().create(request, *args, **kwargs)  # Создаем файл
+        response = super().create(request, *args, **kwargs)
 
-        if response.status_code == 201:  # Проверяем успешное создание файла
-            upload_file()  # Выполняем логику после успешной загрузки файла
+        if response.status_code == 201:
+            upload_file()
 
         return response
+
+class ResultsAPIView(APIView):
+    def get(self, request, file_id):
+        results = Results.objects.filter(file_id=file_id)
+        data = []
+        for result in results:
+            result_data = {
+                'file_id': result.file_id,
+                'result_data': result.result_data,
+                'created_at': result.created_at
+            }
+            data.append(result_data)
+        return Response(data)
