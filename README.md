@@ -19,10 +19,25 @@ Tools used
 SAST: Bandit 1.7.4, ESLint.
 DAST: ZAP (Zed Attack Proxy).
 
+## Installation
+
+    $ git clone https://github.com/piypil/stiefmutterchen.git
+    $ cd stiefmutterchen
+
+### Virtual Environment (`venv`)
+
+    $ sudo apt install python3-venv
+    $ python3 -m venv env
+    $ . env/bin/activate
+    $ pip install -r requirements.txt
+
+### Running the project
+
+    $ python3 manage.py runserver
+
 **Frontend**
 
 - `npm i`
 
-- `npm run build`
+- `npm start`
 
-- `npm run preview`
