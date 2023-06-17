@@ -86,3 +86,15 @@ class ResultsAPIView(APIView):
             }
             data.append(result_data)
         return Response(data)
+
+class CodeAPIView(APIView):
+    def get(self, request):
+        file_path = request.GET.get('file_path', '')
+        file_full_path = os.path.join('project_scann/', file_path)
+        try:
+            with open(file_full_path, 'r') as file:
+                code = file.read()
+        except FileNotFoundError:
+            return Response({'error': 'File not found'}, status=404)
+        
+        return Response({'code': code})
