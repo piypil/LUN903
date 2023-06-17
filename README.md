@@ -19,6 +19,24 @@ Tools used
 SAST: Bandit 1.7.4, ESLint.
 DAST: ZAP (Zed Attack Proxy).
 
+
+## PostgreSQL installation on Ubuntu
+
+    $ sudo apt update
+    $ sudo apt install python3-pip python3-dev libpq-dev postgresql postgresql-contrib
+    $ sudo -u postgres psql
+
+    CREATE DATABASE stiefmutterchen;
+    CREATE USER admin WITH PASSWORD 'password';
+    ALTER ROLE admin SET client_encoding TO 'utf8';  
+    ALTER ROLE admin SET default_transaction_isolation TO 'read committed';  
+    ALTER ROLE admin SET timezone TO 'UTC';
+    ALTER DATABASE stiefmutterchen OWNER TO admin;
+    GRANT ALL PRIVILEGES ON DATABASE stiefmutterchen TO admin;
+    \q
+
+Copy the content of the example env file that is inside the env_config.env into a .env file
+
 ## Installation
 
     $ git clone https://github.com/piypil/stiefmutterchen.git
@@ -32,12 +50,14 @@ DAST: ZAP (Zed Attack Proxy).
     $ pip install -r requirements.txt
 
 ### Running the project
-
+    $ cd stiefmutterchen/lilie
+    $ python3 manage.py makemigrations
+    $ python3 manage.py migrate
     $ python3 manage.py runserver
 
-**Frontend**
+### Frontend
 
-- `npm i`
-
-- `npm start`
+    $ cd stiefmutterchen/frontend
+    $ npm i
+    $ npm start
 
