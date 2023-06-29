@@ -4,7 +4,7 @@ import os
 import config
 import json
 
-
+from rest_framework.decorators import api_view
 from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -13,6 +13,7 @@ from django.db import transaction
 from .models import Files, Results
 from .serializer import FilesSerializer
 from .kamille import bandit_scan
+from zap import scanner_zap
 
 
 def get_last_uploaded_file_id(cursor):
@@ -98,3 +99,17 @@ class CodeAPIView(APIView):
             return Response({'error': 'File not found'}, status=404)
         
         return Response({'code': code})
+
+@api_view(['POST'])
+def scan_url(request):
+    url = request.data.get('url')
+    zap_address = config.ZAP_HOST
+    zap_port = config.ZAP_PORT
+    api_key = config.ZAP_KEY
+
+    if url:
+        scanner = scanner_zap.OWASPZAPScanner(zap_address, zap_port, api_key)
+        scanner.start_scan(url)
+        return Response({'message': f'Scan started successfully for URL: {url}'})
+    else:
+        return Response({'error': 'URL is required.'}, status=400)
