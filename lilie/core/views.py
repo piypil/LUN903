@@ -10,7 +10,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.db import transaction
 
-from .models import Files, Results
+from .models import Files, Results, ScannedProject
 from .serializer import FilesSerializer
 from .kamille import bandit_scan
 from zap import scanner_zap
@@ -113,3 +113,12 @@ def scan_url(request):
         return Response({'message': f'Scan started successfully for URL: {url}'})
     else:
         return Response({'error': 'URL is required.'}, status=400)
+
+class ResultsUrlAPIView(APIView):
+    def get(self, request, project_id):
+        try:
+            project = ScannedProject.objects.get(id=project_id)
+            results = project.results
+            return Response({'results': results})
+        except ScannedProject.DoesNotExist:
+            return Response({'error': 'Project not found'}, status=404)

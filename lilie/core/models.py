@@ -4,6 +4,7 @@ from django.db import models
 class ScannedProject(models.Model):
     url = models.URLField()
     scan_date = models.DateTimeField(auto_now_add=True)
+    results = models.JSONField(null=True, blank=True)
 
 class Files(models.Model):
     file = models.FileField(upload_to='project/')
