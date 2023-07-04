@@ -1,72 +1,29 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import {
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
-  UploadOutlined,
-  PieChartOutlined,
-} from '@ant-design/icons';
-import { Layout, Menu, Button, theme } from 'antd';
-import ClientDashboard from './components/ClientDashboard'
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import './App.css'
+import { WelcomePage } from './pages/WelcomePage'
+import { ConfigProvider } from 'antd'
 
-const { Header, Sider, Content } = Layout;
+function App() {
 
-const App: React.FC = () => {
-  const [collapsed, setCollapsed] = useState(false);
-  const upload = () => {
-    axios.post(`${process.env.REACT_APP_API_URL}/upload`);
-  };
-  const {
-    token: { colorBgContainer },
-  } = theme.useToken();
-  
   return (
-    <Layout style={{minHeight:'100vh'}}>
-      <Sider trigger={null} collapsible collapsed={collapsed}>
-        <div className="logo" />
-        <Menu
-          theme="dark"
-          mode="inline"
-          defaultSelectedKeys={['1']}
-          items={[
-            {
-              key: '1',
-              icon: <PieChartOutlined />,
-              label: 'Анализ',
-            },
-            {
-              key: '2',
-              icon: <UploadOutlined />,
-              label: 'Загрузка',
-            },
-          ]}
-        />
-      </Sider>
-      <Layout className="site-layout" style={{maxHeight:'100vh', overflow:'auto'}}>
-        <Header style={{ padding: 0, background: colorBgContainer }}>
-          {React.createElement(collapsed ? MenuUnfoldOutlined : MenuFoldOutlined, {
-            className: 'trigger',
-            onClick: () => setCollapsed(!collapsed),
-          })}
-        </Header>
-        <Content
-          style={{
-            margin: '24px 16px',
-            padding: 24,
-            minHeight: 280,
-            background: colorBgContainer,
-          }}
+    <BrowserRouter>
+      <ConfigProvider
+        theme={{
+          components: {
+            Typography: {
+              colorWarning: '#ff8c00'
+            }
+          }
+        }}
         >
-          <div style={{ 
-            padding: 24, 
-            textAlign: 'center', 
-            background: colorBgContainer,}}>
-            <ClientDashboard/>
-          </div>
-        </Content>
-      </Layout>
-    </Layout>
-  );
-};
+      <Routes>
+          <Route path='/' element={<WelcomePage/>}>
+        </Route>
 
-export default App;
+      </Routes>
+      </ConfigProvider>
+    </BrowserRouter>
+  )
+}
+
+export default App

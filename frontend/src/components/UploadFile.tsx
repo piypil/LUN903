@@ -4,14 +4,10 @@ import { Input, Col, Row, Typography, Button } from 'antd';
 import { message, Upload } from 'antd';
 import axios from 'axios';
 
-const { Dragger } = Upload;
-const { Title } = Typography;
+export function UploadFile() {
+  const { Dragger } = Upload;
+  const { Title } = Typography;
 
-interface UploadProjectProps {
-  onFileUpload: (pdf: File) => void;
-}
-
-const UploadProject: React.FC<UploadProjectProps> = ({ onFileUpload }) => {
   const [fileList, setFileList] = useState<any[]>([]);
   const [projectName, setProjectName] = useState('');
 
@@ -25,23 +21,15 @@ const UploadProject: React.FC<UploadProjectProps> = ({ onFileUpload }) => {
       formData.append('file', pdf);
       formData.append('name', projectName);
 
-      // Дополнительные данные формы, если требуется
-      // formData.append('projectName', projectName);
-
       await axios.post('http://127.0.0.1:8000/api/files/', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
 
-      // Успешная отправка формы
-      // Необходимо добавить логику
-
       message.success(`${pdf.name} файл успешно загружен.`);
-      onFileUpload(pdf);
 
     } catch (error) {
-      // Обработка ошибки при отправке формы
       message.error(`${pdf.name} ошибка загрузки файла.`);
       console.log(error);
     }
@@ -74,13 +62,9 @@ const UploadProject: React.FC<UploadProjectProps> = ({ onFileUpload }) => {
       )}
       <Row>
         <Col span={8}>
-          <Button block type="primary" onClick={() => fileList.length > 0 && handleFileUpload(fileList[0].originFileObj)}>
-            Отправить
-          </Button>
+          <Button block type="primary" onClick={() => fileList.length > 0 && handleFileUpload(fileList[0].originFileObj)}>Отправить</Button>
         </Col>
       </Row>
     </div>
   );
-};
-
-export default UploadProject;
+}
