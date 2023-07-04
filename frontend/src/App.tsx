@@ -1,6 +1,7 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import './App.css'
 import { WelcomePage } from './pages/WelcomePage'
+import { AboutPage } from './pages/AboutPage'
 import { ConfigProvider } from 'antd'
 
 function App() {
@@ -17,9 +18,8 @@ function App() {
         }}
         >
       <Routes>
-          <Route path='/' element={<WelcomePage/>}>
-        </Route>
-
+          <Route path='/' element={<WelcomePage/>}></Route>
+          <Route path='/about' element={<AboutPage/>}></Route>
       </Routes>
       </ConfigProvider>
     </BrowserRouter>
