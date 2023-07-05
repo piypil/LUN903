@@ -6,7 +6,8 @@ import {
   UserOutlined,
   VideoCameraOutlined,
 } from '@ant-design/icons';
-import { Layout, Menu, Button, theme } from 'antd';
+import { Layout, Menu, Switch} from 'antd';
+import type { MenuTheme } from 'antd';
 
 const { Header, Sider, Content } = Layout;
 
@@ -16,16 +17,18 @@ interface LayoutMenuProps {
 
 export default function LayoutMenu({ children }: LayoutMenuProps) {
   const [collapsed, setCollapsed] = useState(false);
-  const {
-    token: { colorBgContainer },
-  } = theme.useToken();
+  const [theme, setTheme] = useState<MenuTheme>('dark');
+
+  const changeTheme = (value: boolean) => {
+    setTheme(value ? 'dark' : 'light');
+  };
 
   return (
-    <Layout style={{minHeight:'100vh'}}>
-      <Sider trigger={null} collapsible collapsed={collapsed}>
+    <Layout style={{minHeight:'100vh'}} >
+      <Sider trigger={null} collapsible collapsed={collapsed} theme={theme}>
         <div className="demo-logo-vertical" />
         <Menu
-          theme="dark"
+          theme={theme}
           mode="inline"
           defaultSelectedKeys={['1']}
           items={[
@@ -48,7 +51,13 @@ export default function LayoutMenu({ children }: LayoutMenuProps) {
         />
       </Sider>
       <Layout className="site-layout" style={{maxHeight:'100vh', overflow:'auto'}}>
-        <Header style={{ padding: 0, background: colorBgContainer }}>
+        <Header style={{ padding: 0 }} >
+          <Switch
+            checked={theme === 'dark'}
+            onChange={changeTheme}
+            checkedChildren="Dark"
+            unCheckedChildren="Light"/>
+          <br />
           {React.createElement(collapsed ? MenuUnfoldOutlined : MenuFoldOutlined, {
             className: 'trigger',
             onClick: () => setCollapsed(!collapsed),
@@ -59,7 +68,6 @@ export default function LayoutMenu({ children }: LayoutMenuProps) {
             margin: '24px 16px',
             padding: 24,
             minHeight: 280,
-            background: colorBgContainer,
           }}
         >
           {children}
