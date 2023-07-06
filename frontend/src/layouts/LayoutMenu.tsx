@@ -36,7 +36,7 @@ export default function LayoutMenu({ children }: LayoutMenuProps) {
             {
               key: '1',
               icon: <FileSearchOutlined />,
-              label: 'Запустить анализ',
+              label: 'Проводник',
             },
             {
               key: '2',

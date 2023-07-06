@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { InboxOutlined } from '@ant-design/icons';
-import { Input, Col, Row, Typography, Button } from 'antd';
+import { Input, Col, Row, Button } from 'antd';
 import { message, Upload } from 'antd';
 import axios from 'axios';
 
 export function UploadFile() {
   const { Dragger } = Upload;
-  const { Title } = Typography;
 
   const [fileList, setFileList] = useState<any[]>([]);
   const [projectName, setProjectName] = useState('');
@@ -15,10 +14,10 @@ export function UploadFile() {
     setFileList(info.fileList);
   };
 
-  const handleFileUpload = async (pdf: File) => {
+  const handleFileUpload = async (zip: File) => {
     try {
       const formData = new FormData();
-      formData.append('file', pdf);
+      formData.append('file', zip);
       formData.append('name', projectName);
 
       await axios.post('http://127.0.0.1:8000/api/files/', formData, {
@@ -27,10 +26,10 @@ export function UploadFile() {
         },
       });
 
-      message.success(`${pdf.name} файл успешно загружен.`);
+      message.success(`${zip.name} файл успешно загружен.`);
 
     } catch (error) {
-      message.error(`${pdf.name} ошибка загрузки файла.`);
+      message.error(`${zip.name} ошибка загрузки файла.`);
       console.log(error);
     }
   };
@@ -38,8 +37,7 @@ export function UploadFile() {
   return (
     <div style={{ marginBottom: 16 }}>
       <Row>
-        <Col span={8}>
-          <Title level={4}>Загрузите проект</Title>
+        <Col span={10}>
           <Input
             size="large"
             placeholder="Название проекта"
@@ -48,21 +46,23 @@ export function UploadFile() {
           />
         </Col>
       </Row>
-      <Dragger fileList={fileList} onChange={handleFileChange} beforeUpload={() => false}>
-        <p className="ant-upload-drag-icon">
+      <br></br>
+      <div style={{ height: '100px' }}>
+        <Dragger
+            fileList={fileList}
+            onChange={handleFileChange}
+            beforeUpload={() => false}
+            style={{ width: '230px' }}
+          >
+          <p className="ant-upload-drag-icon">
           <InboxOutlined />
-        </p>
-        <p className="ant-upload-text">Нажмите или перетащите проект для загрузки</p>
-        <p className="ant-upload-hint">При большом размере проекта загрузка может занять продолжительное время</p>
-      </Dragger>
-      {fileList.length > 0 && (
-        <p style={{ marginTop: 16 }}>
-          Загруженный файл: <strong>{fileList[0].name}</strong>
-        </p>
-      )}
+          </p>
+        </Dragger>
+      </div>
+      <br></br>
       <Row>
-        <Col span={8}>
-          <Button block type="primary" onClick={() => fileList.length > 0 && handleFileUpload(fileList[0].originFileObj)}>Отправить</Button>
+        <Col span={10}>
+          <Button block type="primary" onClick={() => fileList.length > 0 && handleFileUpload(fileList[0].originFileObj)}>Анализировать</Button>
         </Col>
       </Row>
     </div>
