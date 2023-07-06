@@ -5,6 +5,7 @@ import {
   FileSearchOutlined,
   SettingOutlined,
   UserOutlined,
+  BugTwoTone,
 } from '@ant-design/icons';
 import { Layout, Menu, Switch } from 'antd';
 import { Col, Row } from 'antd';
@@ -27,35 +28,47 @@ export default function LayoutMenu({ children }: LayoutMenuProps) {
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Sider trigger={null} collapsible collapsed={collapsed} theme={theme}>
+      <Sider trigger={null} collapsible collapsed={collapsed} style={{ 
+                  background: theme === 'dark' ? '#121920' : '#fff',
+                  color: theme === 'dark' ? '#fff' : '#000',
+                }}>
         <div className="demo-logo-vertical" />
         <Menu
-          theme={theme}
+          style={{ 
+            background: theme === 'dark' ? '#121920' : '#fff',
+            color: theme === 'dark' ? '#fff' : '#000',
+          }}
           mode="inline"
           defaultSelectedKeys={['1']}
           items={[
             {
               key: '1',
+              icon: <BugTwoTone />,
+              label: <Link to="/">Запуск</Link>,
+            },
+            {
+              key: '2',
               icon: <FileSearchOutlined />,
               label: <Link to="/projects">Проводник</Link>,
             },
             {
-              key: '2',
+              key: '3',
               icon: <UserOutlined />,
               label: 'Аккаунт',
             },
             {
-              key: '3',
+              key: '4',
               icon: <SettingOutlined />,
               label: 'Настройки',
             },
           ]}
         />
       </Sider>
-      <Layout className="site-layout" style={{ maxHeight: '100vh', overflow: 'auto'}}>
+      <Layout className="site-layout" style={{ maxHeight: '100vh', overflow: 'auto', background: theme === 'dark' ? '#001529' : '#fff7fb' }}>
         <Header style={{ 
+            
                   padding: 0,
-                  background: theme === 'dark' ? '#001529' : '#fff',
+                  background: theme === 'dark' ? '#121920' : '#fff',
                   color: theme === 'dark' ? '#fff' : '#000',
                 }}>
           <Row gutter={16}>
@@ -87,9 +100,10 @@ export default function LayoutMenu({ children }: LayoutMenuProps) {
         </Header>
         <Content
           style={{
+            margin: '15px 16px',
             padding: 24,
             minHeight: 280,
-            background: theme === 'dark' ? '#001529' : '#fff',
+            background: theme === 'dark' ? '#0d1318' : '#fff',
             color: theme === 'dark' ? '#fff' : '#000',
           }}
         >
