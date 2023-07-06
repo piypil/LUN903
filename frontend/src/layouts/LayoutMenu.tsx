@@ -9,6 +9,7 @@ import {
 import { Layout, Menu, Switch } from 'antd';
 import { Col, Row } from 'antd';
 import type { MenuTheme } from 'antd';
+import { Link } from "react-router-dom";
 
 const { Header, Sider, Content } = Layout;
 
@@ -36,7 +37,7 @@ export default function LayoutMenu({ children }: LayoutMenuProps) {
             {
               key: '1',
               icon: <FileSearchOutlined />,
-              label: 'Проводник',
+              label: <Link to="/projects">Проводник</Link>,
             },
             {
               key: '2',
@@ -47,7 +48,6 @@ export default function LayoutMenu({ children }: LayoutMenuProps) {
               key: '3',
               icon: <SettingOutlined />,
               label: 'Настройки',
-              onClick: () => console.log('Проверка'),
             },
           ]}
         />

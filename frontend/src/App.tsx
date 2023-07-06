@@ -21,7 +21,7 @@ function App() {
       <Routes>
           <Route path='/' element={<WelcomePage/>}></Route>
           <Route path='/about' element={<AboutPage/>}></Route>
-          <Route path='/dashbord' element={<DashbordPage/>}></Route>
+          <Route path='/projects' element={<DashbordPage/>}></Route>
       </Routes>
       </ConfigProvider>
     </BrowserRouter>
