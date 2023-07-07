@@ -3,6 +3,7 @@ import './App.css'
 import { WelcomePage } from './pages/WelcomePage'
 import { AboutPage } from './pages/AboutPage'
 import { DashbordPage } from './pages/DashbordPage'
+import ProjectResultsPage from './pages/ProjectResultsPage';
 import { ConfigProvider } from 'antd'
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
           <Route path='/' element={<WelcomePage/>}></Route>
           <Route path='/about' element={<AboutPage/>}></Route>
           <Route path='/projects' element={<DashbordPage/>}></Route>
+          <Route path="/results/:projectId" element={<ProjectResultsPage />} />
       </Routes>
       </ConfigProvider>
     </BrowserRouter>
