@@ -11,6 +11,7 @@ import { Layout, Menu, Switch } from 'antd';
 import { Col, Row } from 'antd';
 import type { MenuTheme } from 'antd';
 import { Link } from "react-router-dom";
+import logo from '../assets/images/logo512.png';
 
 const { Header, Sider, Content } = Layout;
 
@@ -29,13 +30,15 @@ export default function LayoutMenu({ children }: LayoutMenuProps) {
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Sider trigger={null} collapsible collapsed={collapsed} style={{ 
-                  background: theme === 'dark' ? '#121920' : '#fff',
+                  background: theme === 'dark' ? '#121920' : '#7289da',
                   color: theme === 'dark' ? '#fff' : '#000',
                 }}>
-        <div className="demo-logo-vertical" />
+        <div style={{ display: 'flex', alignItems: 'center', height: '64px', padding: '0 16px' }}>
+          <img src={logo} alt="Logo" style={{ width: '32px', height: '32px' }} />
+        </div>
         <Menu
           style={{ 
-            background: theme === 'dark' ? '#121920' : '#fff',
+            background: theme === 'dark' ? '#121920' : '#7289da',
             color: theme === 'dark' ? '#fff' : '#000',
           }}
           mode="inline"
@@ -64,11 +67,11 @@ export default function LayoutMenu({ children }: LayoutMenuProps) {
           ]}
         />
       </Sider>
-      <Layout className="site-layout" style={{ maxHeight: '100vh', overflow: 'auto', background: theme === 'dark' ? '#001529' : '#fff7fb' }}>
+      <Layout className="site-layout" style={{ maxHeight: '100vh', overflow: 'auto', background: theme === 'dark' ? '#001529' : '#99aab5' }}>
         <Header style={{ 
             
                   padding: 0,
-                  background: theme === 'dark' ? '#121920' : '#fff',
+                  background: theme === 'dark' ? '#121920' : '#7289da',
                   color: theme === 'dark' ? '#fff' : '#000',
                 }}>
           <Row gutter={16}>
@@ -103,7 +106,7 @@ export default function LayoutMenu({ children }: LayoutMenuProps) {
             margin: '15px 16px',
             padding: 24,
             minHeight: 280,
-            background: theme === 'dark' ? '#0d1318' : '#fff',
+            background: theme === 'dark' ? '#0d1318' : '#ffffff',
             color: theme === 'dark' ? '#fff' : '#000',
           }}
         >
