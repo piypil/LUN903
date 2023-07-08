@@ -12,7 +12,7 @@ from django.db import transaction
 
 from .models import Files, Results, ScannedProject
 from .serializer import FilesSerializer
-from .kamille import bandit_scan
+from .kamille import bandit_scan, dependency_check_scan
 from zap import scanner_zap
 
 
@@ -51,6 +51,8 @@ def upload_file():
         path = extract_zip_file(file_data, file_id)
         b = bandit_scan.Bandit(path)
         b.scan_direct()
+        c = dependency_check_scan.DependencyCheckScan(path)
+        c.scan_direct()
         cur.close()
     conn.close()
 
