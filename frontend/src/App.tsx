@@ -10,15 +10,7 @@ function App() {
 
   return (
     <BrowserRouter>
-      <ConfigProvider
-        theme={{
-          components: {
-            Typography: {
-              colorWarning: '#ff8c00'
-            }
-          }
-        }}
-        >
+      <ConfigProvider>
       <Routes>
           <Route path='/' element={<WelcomePage/>}></Route>
           <Route path='/about' element={<AboutPage/>}></Route>
