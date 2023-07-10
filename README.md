@@ -1,4 +1,9 @@
-StiefmÜtterchen
+# StiefmÜtterchen
+
+<p align="center">
+	<img src="/frontend/src/assets/images/logo_page.png" height="300px"/>
+</p>
+
 
 This project is a set of tools for securing web applications. The project includes the following tools:
 - Static analysis of code security (SAST) - tools to find vulnerabilities in the source code of an application.
