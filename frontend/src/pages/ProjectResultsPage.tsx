@@ -1,30 +1,33 @@
 import React, { useEffect, useState } from 'react';
-import { Table } from 'antd';
+import { Result, Table } from 'antd';
 import { useParams } from 'react-router-dom';
 
 interface Result {
-  errors: []
-  generated_at: string
-  metrics: {}
-  results:
-      {
-          code: string
-          col_offset: number
-          end_col_offset: number
-          filename: string
-          issue_confidence : string
-          issue_cwe: {
-              id: number
-              link: string
-          }
-          issue_severity: string
-          issue_text: string
-          line_number: number
-          line_range: number[]
-          more_info: string
-          test_id: string
-          test_name: string
-      }[]
+  file_id: number
+  result_data: {
+    errors: []
+    generated_at: string
+    metrics: {}
+    results:
+        {
+            code: string
+            col_offset: number
+            end_col_offset: number
+            filename: string
+            issue_confidence : string
+            issue_cwe: {
+                id: number
+                link: string
+            }
+            issue_severity: string
+            issue_text: string
+            line_number: number
+            line_range: number[]
+            more_info: string
+            test_id: string
+            test_name: string
+        }[]
+  }
 }
 
 const ProjectResultsPage: React.FC = () => {
@@ -41,6 +44,7 @@ const ProjectResultsPage: React.FC = () => {
   const columns = [
     { title: 'Code', dataIndex: 'code', key: 'code' },
     { title: 'Test Name', dataIndex: 'test_name', key: 'test_name' },
+    { title: 'Test Id', dataIndex: 'test_id', key: 'test_id' }
   ];
 
   return (
