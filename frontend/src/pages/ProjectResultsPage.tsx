@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Typography } from 'antd';
+import { Table, Typography, Row, Col } from 'antd';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 const { Title } = Typography;
 
@@ -32,31 +34,6 @@ const ProjectResultsPage: React.FC = () => {
       });
   }, [projectId]);
 
-  const columns = [
-    {
-      title: 'Vulnerability',
-      dataIndex: 'test_name',
-      key: 'test_name',
-    },
-    {
-      title: 'Description',
-      dataIndex: 'issue_text',
-      key: 'issue_text',
-    },
-    {
-      title: 'Code',
-      dataIndex: 'filename',
-      key: 'code',
-      render: (text: string, vulnerability: Vulnerability) => (
-        <div className="code-container">
-          {selectedVulnerability === vulnerability && (
-            <pre>{code}</pre>
-          )}
-        </div>
-      ),
-    },
-  ];
-
   const handleRowClick = (record: Vulnerability) => {
     setSelectedVulnerability(record);
     fetchCode(record.filename);
@@ -77,13 +54,27 @@ const ProjectResultsPage: React.FC = () => {
   return (
     <div>
       <Title level={2}>Результаты проекта {projectId}</Title>
-      <Table
-        dataSource={vulnerabilities}
-        columns={columns}
-        onRow={(record) => ({
-          onClick: () => handleRowClick(record),
-        })}
-      />
+      <Row gutter={[16, 16]}>
+        <Col span={16}>
+          <div className="code-container">
+            <SyntaxHighlighter language="python" style={atomDark} className="code">
+              {selectedVulnerability ? code : ''}
+            </SyntaxHighlighter>
+          </div>
+        </Col>
+        <Col span={8}>
+          {vulnerabilities.map((vulnerability, index) => (
+            <div
+              key={index}
+              className={`vulnerability-block ${selectedVulnerability === vulnerability ? 'selected' : ''}`}
+              onClick={() => handleRowClick(vulnerability)}
+            >
+              <h3>{vulnerability.test_name}</h3>
+              <p>{vulnerability.issue_text}</p>
+            </div>
+          ))}
+        </Col>
+      </Row>
     </div>
   );
 };
