@@ -12,6 +12,7 @@ import { Col, Row } from 'antd';
 import type { MenuTheme } from 'antd';
 import { Link } from "react-router-dom";
 import logo from '../assets/images/logo512.png';
+import Marquee from 'react-fast-marquee';
 
 const { Header, Sider, Content } = Layout;
 
@@ -86,7 +87,12 @@ export default function LayoutMenu({ children }: LayoutMenuProps) {
               <div>col-1</div>
             </Col>
             <Col className="gutter-row" span={6}>
-              <div>col-2</div>
+              <Marquee pauseOnHover style={{ 
+                background: theme === 'dark' ? '#121920' : '#7289da',
+                color: theme === 'dark' ? '#fff' : '#000',
+                }}>
+                  (ﾉ◕ヮ◕)ﾉ*:･ﾟ✧__EAT__(„• ֊ •„)__SLEEP__°˖✧◝(⁰▿⁰)◜✧˖°__HACK__( ◕▿◕ )
+              </Marquee>
             </Col>
             <Col className="gutter-row" span={6}>
               <div>

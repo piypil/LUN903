@@ -21,16 +21,21 @@ interface Vulnerability {
 
 const ProjectResultsPage: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>();
+  const [projectName, setProjectName] = useState<string>('');
   const [vulnerabilities, setVulnerabilities] = useState<Vulnerability[]>([]);
   const [selectedVulnerability, setSelectedVulnerability] = useState<Vulnerability | null>(null);
   const [code, setCode] = useState<string>('');
 
   useEffect(() => {
-    axios
-      .get(`http://localhost:8000/api/results/${projectId}/`)
-      .then((response) => {
-        const data = response.data;
-        setVulnerabilities(data[0]?.result_data?.results || []);
+    Promise.all([
+      axios.get(`http://localhost:8000/api/files/${projectId}/`),
+      axios.get(`http://localhost:8000/api/results/${projectId}/`),
+    ])
+      .then(([projectResponse, resultsResponse]) => {
+        const projectData = projectResponse.data;
+        const resultsData = resultsResponse.data;
+        setProjectName(projectData.name);
+        setVulnerabilities(resultsData[0]?.result_data?.results || []);
       })
       .catch((error) => {
         console.error(error);
@@ -83,7 +88,7 @@ const ProjectResultsPage: React.FC = () => {
   return (
     <div>
       <LayoutMenu>
-      <Title level={2}>Результаты проекта {projectId}</Title>
+      <Title level={2}>{projectName}</Title>
       <Row gutter={[16, 16]}>
         <Col span={16}>
           <div className="code-container">
