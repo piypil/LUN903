@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Typography, Row, Col } from 'antd';
+import { Typography, Row, Col } from 'antd';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import CodeMirror from '@uiw/react-codemirror';
+import { EditorView } from '@codemirror/view';
+import { classname } from '@uiw/codemirror-extensions-classname';
+import { langs } from '@uiw/codemirror-extensions-langs';
+import LayoutMenu from '../layouts/LayoutMenu'
 
 const { Title } = Typography;
 
@@ -51,15 +54,45 @@ const ProjectResultsPage: React.FC = () => {
       });
   };
 
+  const getColor = (priority: string) => {
+    switch (priority) {
+      case 'LOW':
+        return 'default';
+      case 'MEDIUM':
+        return 'orange';
+      case 'HIGH':
+        return 'red';
+      default:
+        return 'default';
+    }
+  };
+
+  const themeDemo = EditorView.baseTheme({
+    '&dark .line-color': { backgroundColor: 'orange' },
+    '&light .line-color': { backgroundColor: 'orange' },
+  });
+
+  const classnameExt = classname({
+    add: (lineNumber: number) => {
+      if (lineNumber === selectedVulnerability?.line_number) {
+        return 'line-color';
+      }
+    },
+  });
+
   return (
     <div>
+      <LayoutMenu>
       <Title level={2}>Результаты проекта {projectId}</Title>
       <Row gutter={[16, 16]}>
         <Col span={16}>
           <div className="code-container">
-            <SyntaxHighlighter language="python" style={atomDark} className="code">
-              {selectedVulnerability ? code : ''}
-            </SyntaxHighlighter>
+            {selectedVulnerability && (
+              <CodeMirror
+                value={code}
+                extensions={[themeDemo, classnameExt, langs.python()]}
+              />
+            )}
           </div>
         </Col>
         <Col span={8}>
@@ -75,6 +108,7 @@ const ProjectResultsPage: React.FC = () => {
           ))}
         </Col>
       </Row>
+      </LayoutMenu>
     </div>
   );
 };
