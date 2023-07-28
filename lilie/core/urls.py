@@ -1,7 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import FilesViewSet, ResultsAPIView, CodeAPIView, scan_url, ResultsUrlAPIView, get_scan_progress
-
+from .views import FilesViewSet, ResultsAPIView, CodeAPIView, scan_url, ResultsUrlAPIView, get_scan_progress, ScannedProjectListView
 
 router = DefaultRouter()
 router.register('files', FilesViewSet, basename='files')
@@ -13,4 +12,5 @@ urlpatterns = [
     path('api/scan-progress/', get_scan_progress),
     path('api/code/', CodeAPIView.as_view(), name='code-api'),
     path('api/scan-url/', scan_url, name='scan_url'),
+    path('api/scanned-projects/', ScannedProjectListView.as_view(), name='scanned-projects-list'),
 ]

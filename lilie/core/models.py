@@ -2,6 +2,7 @@ from django.db import models
 
 
 class ScannedProject(models.Model):
+    project_name = models.CharField(max_length=255, default='Project')
     url = models.URLField()
     scan_date = models.DateTimeField(auto_now_add=True)
     results = models.JSONField(null=True, blank=True)

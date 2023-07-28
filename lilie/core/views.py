@@ -6,7 +6,7 @@ import json
 import multiprocessing
 
 from rest_framework.decorators import api_view
-from rest_framework import viewsets
+from rest_framework import viewsets, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.db import transaction
@@ -15,8 +15,7 @@ from django.http import JsonResponse
 from multiprocessing import Queue
 
 from .models import Files, Results, ScannedProject
-from .serializer import FilesSerializer
-from .kamille import bandit_scan, dependency_check_scan
+from .serializer import FilesSerializer, ScannedProjectSerializer
 from zap import scanner_zap
 from tqdm import tqdm
 
@@ -138,6 +137,7 @@ class CodeAPIView(APIView):
 @api_view(['POST'])
 def scan_url(request):
     url = request.data.get('url')
+    projectName = request.data.get('projectName')
     zap_address = config.ZAP_HOST
     zap_port = config.ZAP_PORT
     api_key = config.ZAP_KEY
@@ -145,9 +145,14 @@ def scan_url(request):
     if url:
         scanner = scanner_zap.OWASPZAPScanner(zap_address, zap_port, api_key)
         scanner.start_scan(url)
+
+        project = ScannedProject(url=url, project_name=projectName)
+        project.save()
+
         return Response({'message': f'Scan started successfully for URL: {url}'})
     else:
         return Response({'error': 'URL is required.'}, status=400)
+
 
 class ResultsUrlAPIView(APIView):
     def get(self, request, project_id):
@@ -157,3 +162,8 @@ class ResultsUrlAPIView(APIView):
             return Response({'results': results})
         except ScannedProject.DoesNotExist:
             return Response({'error': 'Project not found'}, status=404)
+
+
+class ScannedProjectListView(generics.ListAPIView):
+    queryset = ScannedProject.objects.all()
+    serializer_class = ScannedProjectSerializer
