@@ -3,17 +3,26 @@ import psycopg2
 import os
 import config
 import json
+import multiprocessing
 
 from rest_framework.decorators import api_view
 from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.db import transaction
+from django.core.exceptions import AppRegistryNotReady
+from django.http import JsonResponse
+from multiprocessing import Queue
 
 from .models import Files, Results, ScannedProject
 from .serializer import FilesSerializer
 from .kamille import bandit_scan, dependency_check_scan
 from zap import scanner_zap
+from tqdm import tqdm
+
+
+progress_queue = Queue()
+progress = 0
 
 
 def get_last_uploaded_file_id(cursor):
@@ -42,17 +51,37 @@ def connect_to_database():
     )
     return conn
 
-def upload_file():
+def upload_file(progress_queue):
+    
+    global progress
+    
+    progress = 0
+
+    try:
+        from .scan_helper import bandit_scan_worker, dependency_check_scan_worker
+    except AppRegistryNotReady:
+        pass
+    
     conn = connect_to_database()
 
     with conn.cursor() as cur:
         file_id = get_last_uploaded_file_id(cur)
         file_data = get_file_data(cur, file_id)
         path = extract_zip_file(file_data, file_id)
-        b = bandit_scan.Bandit(path)
-        b.scan_direct()
-        c = dependency_check_scan.DependencyCheckScan(path)
-        c.scan_direct()
+
+        bandit_process = multiprocessing.Process(target=bandit_scan_worker, args=(path, progress_queue))
+        dependency_check_process = multiprocessing.Process(target=dependency_check_scan_worker, args=(path, progress_queue))
+        bandit_process.start()
+        dependency_check_process.start()
+
+        total_scans = 2
+        for _ in tqdm(range(total_scans), desc="Scanning", unit="scan"):
+            progress_queue.get()
+            progress += 50
+
+        bandit_process.join()
+        dependency_check_process.join()
+
         cur.close()
     conn.close()
 
@@ -64,6 +93,10 @@ def upload_file():
         results_instance = Results(file=file_instance, result_data=results)
         results_instance.save()
 
+@api_view(['GET'])
+def get_scan_progress(request):
+    global progress
+    return JsonResponse({'progress': progress})
 
 class FilesViewSet(viewsets.ModelViewSet):
     queryset = Files.objects.all()
@@ -73,7 +106,7 @@ class FilesViewSet(viewsets.ModelViewSet):
         response = super().create(request, *args, **kwargs)
 
         if response.status_code == 201:
-            upload_file()
+            upload_file(progress_queue)
 
         return response
 

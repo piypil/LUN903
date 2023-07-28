@@ -13,6 +13,7 @@ import type { MenuTheme } from 'antd';
 import { Link } from "react-router-dom";
 import logo from '../assets/images/logo512.png';
 import Marquee from 'react-fast-marquee';
+import ScanProgress from '../components/ScanProgress';
 
 const { Header, Sider, Content } = Layout;
 
@@ -84,7 +85,7 @@ export default function LayoutMenu({ children }: LayoutMenuProps) {
               </div>
             </Col>
             <Col className="gutter-row" span={6}>
-              <div>col-1</div>
+              <ScanProgress />
             </Col>
             <Col className="gutter-row" span={6}>
               <Marquee pauseOnHover style={{ 
