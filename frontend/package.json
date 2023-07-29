@@ -12,7 +12,7 @@
     "@types/react": "^18.2.12",
     "@types/react-dom": "^18.2.5",
     "@uiw/codemirror-themes": "^4.21.8",
-    "antd": "^5.6.1",
+    "antd": "^5.7.3",
     "axios": "^1.4.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
