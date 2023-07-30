@@ -3,6 +3,7 @@ import { Space, Table } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import moment from 'moment';
 
 interface ProjectData {
   id: number;
@@ -15,7 +16,7 @@ interface ProjectData {
 export function TableViewDAST() {
   const columns: ColumnsType<ProjectData> = [
     {
-      title: 'Project Name',
+      title: 'Project',
       dataIndex: 'project_name',
       key: 'project_name',
       render: (project_name, record) => (
@@ -38,14 +39,13 @@ export function TableViewDAST() {
     {
       title: 'Scan Date',
       dataIndex: 'scan_date',
-      key: 'scan_date',
+      render: (date) => moment(date).format('YY.MM.DD -> HH:mm'),
     },
     {
       title: 'Action',
       key: 'action',
       render: (_, record) => (
         <Space size="middle">
-          <Link to={`/results-dast/${record.id}`}>Results</Link>
           <a>Delete</a>
         </Space>
       ),
