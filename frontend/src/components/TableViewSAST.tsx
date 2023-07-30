@@ -3,8 +3,9 @@ import { Space, Table } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import moment from 'moment';
 
-export function TableView() {
+export function TableViewSAST() {
   interface FileData {
     id: number;
     name: string;
@@ -14,7 +15,7 @@ export function TableView() {
 
   const columns: ColumnsType<FileData> = [
     {
-      title: 'Name',
+      title: 'Project',
       dataIndex: 'name',
       key: 'name',
       render: (name, record) => (
@@ -29,9 +30,10 @@ export function TableView() {
       key: 'id',
     },
     {
-      title: 'Uploaded At',
+      title: 'Scan Date',
       dataIndex: 'uploaded_at',
       key: 'uploaded_at',
+      render: (date) => moment(date).format('YY.MM.DD -> HH:mm'),
     },
     {
       title: 'Action',

@@ -12,7 +12,7 @@ interface ProjectData {
   results: any;
 }
 
-export function ProjectTableView() {
+export function TableViewDAST() {
   const columns: ColumnsType<ProjectData> = [
     {
       title: 'Project Name',
@@ -68,4 +68,4 @@ export function ProjectTableView() {
   return <Table columns={columns} dataSource={data} />;
 }
 
-export default ProjectTableView;
+export default TableViewDAST;

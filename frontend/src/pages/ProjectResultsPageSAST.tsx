@@ -19,7 +19,7 @@ interface Vulnerability {
   end_col_offset: number;
 }
 
-const ProjectResultsPage: React.FC = () => {
+const ProjectResultsPageSAST: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const [projectName, setProjectName] = useState<string>('');
   const [vulnerabilities, setVulnerabilities] = useState<Vulnerability[]>([]);
@@ -118,4 +118,4 @@ const ProjectResultsPage: React.FC = () => {
   );
 };
 
-export default ProjectResultsPage;
+export default ProjectResultsPageSAST;
