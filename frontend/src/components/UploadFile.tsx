@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { InboxOutlined } from '@ant-design/icons';
-import { Input, Col, Row, Button } from 'antd';
-import { message, Upload } from 'antd';
+import { Input, Col, Row, Button, message, Upload } from 'antd';
 import axios from 'axios';
 
-export function UploadFile() {
+interface UploadFileProps {
+  setShowSuccessMessage: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+export function UploadFile({ setShowSuccessMessage }: UploadFileProps) {
   const { Dragger } = Upload;
 
   const [fileList, setFileList] = useState<any[]>([]);
@@ -25,8 +28,10 @@ export function UploadFile() {
           'Content-Type': 'multipart/form-data',
         },
       });
-
-      message.success(`${zip.name} файл успешно загружен.`);
+      setShowSuccessMessage(true);
+      setTimeout(() => {
+        setShowSuccessMessage(false);
+      }, 5000);
 
     } catch (error) {
       message.error(`${zip.name} ошибка загрузки файла.`);
@@ -36,35 +41,35 @@ export function UploadFile() {
 
   return (
     <div style={{ marginBottom: 16 }}>
-      <Row>
-        <Col span={10}>
+      <Row gutter={16} justify="center" align="middle">
+        <Col xs={24} sm={10}>
           <Input
-            size="large"
             placeholder="Название проекта"
             value={projectName}
             onChange={(e) => setProjectName(e.target.value)}
           />
         </Col>
-      </Row>
-      <br></br>
-      <div style={{ height: '100px' }}>
-        <Dragger
+        <Col xs={24} sm={10}>
+          <Button block type="primary" onClick={() => fileList.length > 0 && handleFileUpload(fileList[0].originFileObj)}>
+            Анализировать
+          </Button>
+        </Col>
+        <Col xs={24} sm={14} style={{ padding: '8px' }}>
+          <Dragger
             fileList={fileList}
             onChange={handleFileChange}
             beforeUpload={() => false}
-            style={{ width: '230px' }}
+            style={{ width: '100%' }}
+            multiple={false}
           >
-          <p className="ant-upload-drag-icon">
-          <InboxOutlined />
-          </p>
-        </Dragger>
-      </div>
-      <br></br>
-      <Row>
-        <Col span={10}>
-          <Button block type="primary" onClick={() => fileList.length > 0 && handleFileUpload(fileList[0].originFileObj)}>Анализировать</Button>
+            <p className="ant-upload-drag-icon">
+              <InboxOutlined />
+            </p>
+            <p className="ant-upload-text">Кликните или перетащите файл для загрузки</p>
+          </Dragger>
         </Col>
       </Row>
+      <br />
     </div>
   );
 }

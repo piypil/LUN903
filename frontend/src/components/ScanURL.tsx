@@ -58,10 +58,9 @@ export function ScanURL() {
       </Form.Item>
       <Form.Item
         name="projectName"
-        label="Project Name"
-        rules={[{ required: true, message: 'Please enter project name.' }]}
+        rules={[{ required: false, message: 'Please enter project name.' }]}
       >
-        <Input placeholder="Enter project name" onChange={(e) => setProjectName(e.target.value)} />
+        <Input placeholder="Название проекта" onChange={(e) => setProjectName(e.target.value)} />
       </Form.Item>
       <Form.Item>
         <Space>
