@@ -12,6 +12,19 @@ const { Title } = Typography;
 const { TabPane } = Tabs;
 const API_BASE_URL = process.env.REACT_APP_API_URL;
 
+function getColor(priority: string) {
+  switch (priority) {
+    case 'LOW':
+      return 'default';
+    case 'MEDIUM':
+      return 'orange';
+    case 'HIGH':
+      return 'red';
+    default:
+      return 'default';
+  }
+}
+
 interface Vulnerability {
   code: string;
   filename: string;
@@ -160,16 +173,3 @@ const ProjectResultsPageSAST: React.FC = () => {
 };
 
 export default ProjectResultsPageSAST;
-
-function getColor(priority: string) {
-  switch (priority) {
-    case 'LOW':
-      return 'default';
-    case 'MEDIUM':
-      return 'orange';
-    case 'HIGH':
-      return 'red';
-    default:
-      return 'default';
-  }
-}

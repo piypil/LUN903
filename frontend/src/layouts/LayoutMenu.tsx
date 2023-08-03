@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -23,11 +23,20 @@ interface LayoutMenuProps {
 
 export default function LayoutMenu({ children }: LayoutMenuProps) {
   const [collapsed, setCollapsed] = useState(false);
-  const [theme, setTheme] = useState<MenuTheme>('light');
+  const [theme, setTheme] = useState<MenuTheme>(() => {
+    const localTheme = window.localStorage.getItem('theme');
+    return localTheme ? (localTheme as MenuTheme) : 'light';
+  });
 
   const changeTheme = (value: boolean) => {
-    setTheme(value ? 'dark' : 'light');
+    const newTheme = value ? 'dark' : 'light';
+    setTheme(newTheme);
+    window.localStorage.setItem('theme', newTheme);
   };
+
+  const handleCollapseClick = useCallback(() => {
+    setCollapsed((prevState) => !prevState);
+  }, []);
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -80,7 +89,7 @@ export default function LayoutMenu({ children }: LayoutMenuProps) {
               <div>
               {React.createElement(collapsed ? MenuUnfoldOutlined : MenuFoldOutlined, {
                 className: 'trigger',
-                onClick: () => setCollapsed(!collapsed),
+                onClick: handleCollapseClick,
               })}
               </div>
             </Col>
