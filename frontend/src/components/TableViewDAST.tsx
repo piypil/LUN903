@@ -5,6 +5,8 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import moment from 'moment';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL;
+
 interface ProjectData {
   id: number;
   project_name: string;
@@ -58,7 +60,7 @@ export function TableViewDAST() {
 
   useEffect(() => {
     axios
-      .get('http://localhost:8000/api/scanned-projects/')
+      .get(`${API_BASE_URL}/scanned-projects/`)
       .then((response) => {
         setData(response.data);
       })

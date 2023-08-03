@@ -5,6 +5,8 @@ import ResultCard from '../components/ResultCard';
 import ResultDetails from '../components/ResultDetails';
 import { ProjectData, Result, UrlDetail } from '../types';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL;
+
 const ProjectResultsPageDAST: React.FC = () => {
   const { projectId } = useParams<{ projectId?: string }>();
   const [projectData, setProjectData] = useState<ProjectData | null>(null);
@@ -21,7 +23,7 @@ const ProjectResultsPageDAST: React.FC = () => {
   useEffect(() => {
     if (projectId) {
       axios
-        .get('http://localhost:8000/api/scanned-projects/')
+        .get(`${API_BASE_URL}/scanned-projects/`)
         .then((response) => {
           const filteredProject = response.data.find((project: ProjectData) => project.id === parseInt(projectId));
           if (filteredProject) {

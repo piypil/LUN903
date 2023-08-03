@@ -5,6 +5,8 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import moment from 'moment';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL;
+
 interface FileData {
   id: number;
   name: string;
@@ -53,7 +55,7 @@ export function TableViewSAST() {
 
   useEffect(() => {
     axios
-      .get('http://localhost:8000/api/files/')
+      .get(`${API_BASE_URL}/files/`)
       .then((response) => {
         setData(response.data);
       })

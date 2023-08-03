@@ -10,6 +10,7 @@ import LayoutMenu from '../layouts/LayoutMenu';
 
 const { Title } = Typography;
 const { TabPane } = Tabs;
+const API_BASE_URL = process.env.REACT_APP_API_URL;
 
 interface Vulnerability {
   code: string;
@@ -38,8 +39,8 @@ const ProjectResultsPageSAST: React.FC = () => {
 
   useEffect(() => {
     Promise.all([
-      axios.get(`http://localhost:8000/api/files/${projectId}/`),
-      axios.get(`http://localhost:8000/api/results/${projectId}/`),
+      axios.get(`${API_BASE_URL}/files/${projectId}/`),
+      axios.get(`${API_BASE_URL}/results/${projectId}/`),
     ])
       .then(([projectResponse, resultsResponse]) => {
         const projectData = projectResponse.data;
@@ -67,7 +68,7 @@ const ProjectResultsPageSAST: React.FC = () => {
 
   const fetchCode = (filePath: string) => {
     axios
-      .get(`http://localhost:8000/api/code/?file_path=${filePath}`)
+      .get(`${API_BASE_URL}/code/?file_path=${filePath}`)
       .then((response) => {
         const data = response.data;
         setCode(data.code);

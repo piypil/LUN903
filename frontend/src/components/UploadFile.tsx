@@ -3,6 +3,8 @@ import { InboxOutlined } from '@ant-design/icons';
 import { Input, Col, Row, Button, message, Upload } from 'antd';
 import axios from 'axios';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL;
+
 interface UploadFileProps {
   setShowSuccessMessage: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -23,7 +25,7 @@ export function UploadFile({ setShowSuccessMessage }: UploadFileProps) {
       formData.append('file', zip);
       formData.append('name', projectName);
 
-      await axios.post('http://127.0.0.1:8000/api/files/', formData, {
+      await axios.post(`${API_BASE_URL}/files/`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
