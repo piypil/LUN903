@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Button, Form, Input, message, Space } from 'antd';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL;
+
 interface FormValues {
   url: string;
   projectName: string; 
@@ -13,7 +15,7 @@ export function ScanURL() {
   const onFinish = async (values: FormValues) => {
     const { url, projectName } = values;
     try {
-      const response = await fetch('http://localhost:8000/api/scan-url/', {
+      const response = await fetch(`${API_BASE_URL}/scan-url/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
