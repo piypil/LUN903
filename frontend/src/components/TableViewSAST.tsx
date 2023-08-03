@@ -5,14 +5,14 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import moment from 'moment';
 
-export function TableViewSAST() {
-  interface FileData {
-    id: number;
-    name: string;
-    file: string;
-    uploaded_at: string;
-  }
+interface FileData {
+  id: number;
+  name: string;
+  file: string;
+  uploaded_at: string;
+}
 
+export function TableViewSAST() {
   const columns: ColumnsType<FileData> = [
     {
       title: 'Project',
@@ -33,7 +33,7 @@ export function TableViewSAST() {
       title: 'Scan Date',
       dataIndex: 'uploaded_at',
       key: 'uploaded_at',
-      render: (date) => moment(date).format('YY.MM.DD -> HH:mm'),
+      render: (date) => moment(date).format('YYYY.MM.DD -> HH:mm'),
     },
     {
       title: 'Action',
@@ -48,6 +48,7 @@ export function TableViewSAST() {
       ),
     },
   ];
+
   const [data, setData] = useState<FileData[]>([]);
 
   useEffect(() => {
@@ -61,5 +62,13 @@ export function TableViewSAST() {
       });
   }, []);
 
-  return <Table columns={columns} dataSource={data} />;
+  return (
+    <Table
+      columns={columns}
+      dataSource={data}
+      loading={data.length === 0}
+    />
+  );
 }
+
+export default TableViewSAST;

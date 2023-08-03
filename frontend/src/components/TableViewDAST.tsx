@@ -34,12 +34,14 @@ export function TableViewDAST() {
       title: 'URL',
       dataIndex: 'url',
       key: 'url',
-      render: (url) => <a href={url} target="_blank" rel="noopener noreferrer">{url}</a>,
+      render: (url) => (
+        <a href={url} target="_blank" rel="noopener noreferrer">{url}</a>
+      ),
     },
     {
       title: 'Scan Date',
       dataIndex: 'scan_date',
-      render: (date) => moment(date).format('YY.MM.DD -> HH:mm'),
+      render: (date) => moment(date).format('YYYY.MM.DD -> HH:mm'),
     },
     {
       title: 'Action',
@@ -65,7 +67,13 @@ export function TableViewDAST() {
       });
   }, []);
 
-  return <Table columns={columns} dataSource={data} />;
+  return (
+    <Table
+      columns={columns}
+      dataSource={data}
+      loading={data.length === 0}
+    />
+  );
 }
 
 export default TableViewDAST;
