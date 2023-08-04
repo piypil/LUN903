@@ -32,7 +32,8 @@ DAST: ZAP (Zed Attack Proxy).
     $ sudo -u postgres psql
 
     CREATE DATABASE stiefmutterchen;
-    CREATE USER admin WITH PASSWORD 'password';
+    CREATE ROLE admin WITH PASSWORD 'password';
+    ALTER ROLE admin WITH LOGIN;
     ALTER ROLE admin SET client_encoding TO 'utf8';  
     ALTER ROLE admin SET default_transaction_isolation TO 'read committed';  
     ALTER ROLE admin SET timezone TO 'UTC';
@@ -56,7 +57,7 @@ Copy the content of the example env file that is inside the env_config.env into 
 
 ### Running the project
     $ cd stiefmutterchen/lilie
-    $ python3 manage.py makemigrations
+    $ python3 manage.py makemigrations core 
     $ python3 manage.py migrate
     $ python3 manage.py runserver
 
