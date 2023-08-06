@@ -6,7 +6,7 @@ sudo apt install python3-pip python3-dev libpq-dev postgresql postgresql-contrib
 cd lilie/
 read -sp "Enter the DB_PASS: " db_pass
 
-db_host=$(hostname)
+db_host=$(hostname -I | awk '{print $1}')
 django_secret_key=$(openssl rand -hex 32)
 
 read -p "Enable DJANGO_DEBUG mode? (y/n): " debug_choice
