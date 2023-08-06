@@ -1,19 +1,6 @@
 #!/bin/bash
-
-# PostgreSQL installation
 sudo apt update
 sudo apt install python3-pip python3-dev libpq-dev postgresql postgresql-contrib nodejs npm
-sudo -u postgres psql << EOF
-CREATE DATABASE stiefmutterchen;
-CREATE ROLE admin WITH PASSWORD 'password';
-ALTER ROLE admin WITH LOGIN;
-ALTER ROLE admin SET client_encoding TO 'utf8';
-ALTER ROLE admin SET default_transaction_isolation TO 'read committed';
-ALTER ROLE admin SET timezone TO 'UTC';
-ALTER DATABASE stiefmutterchen OWNER TO admin;
-GRANT ALL PRIVILEGES ON DATABASE stiefmutterchen TO admin;
-\q
-EOF
 
 # Setup virtual environment and configure project settings
 cd lilie/
@@ -28,6 +15,19 @@ if [ "$debug_choice" = "y" ]; then
 else
   django_debug="False"
 fi
+
+# PostgreSQL installation
+sudo -u postgres psql << EOF
+CREATE DATABASE stiefmutterchen;
+CREATE ROLE admin WITH PASSWORD '$db_pass';
+ALTER ROLE admin WITH LOGIN;
+ALTER ROLE admin SET client_encoding TO 'utf8';
+ALTER ROLE admin SET default_transaction_isolation TO 'read committed';
+ALTER ROLE admin SET timezone TO 'UTC';
+ALTER DATABASE stiefmutterchen OWNER TO admin;
+GRANT ALL PRIVILEGES ON DATABASE stiefmutterchen TO admin;
+\q
+EOF
 
 echo "export DB_NAME=stiefmutterchen" >> .env
 echo "export DB_USER=admin" >> .env
@@ -55,6 +55,7 @@ wget https://github.com/jeremylong/DependencyCheck/releases/download/v8.3.1/depe
 unzip dependency-check-8.3.1-release.zip
 echo 'export PATH=$PATH:'$HOME'/stiefmutterchen/dependency-check/bin' >> ~/.bashrc
 source ~/.bashrc
+rm dependency-check-8.3.1-release.zip
 
 # Apply migrations and run server
 cd lilie/
