@@ -32,7 +32,7 @@ EOF
 echo "export DB_NAME=stiefmutterchen" >> .env
 echo "export DB_USER=admin" >> .env
 echo "export DB_PASS=$db_pass" >> .env
-echo "export DB_HOST=$db_host" >> .env
+echo "export DB_HOST=localhost" >> .env
 echo "export DB_PORT=5432" >> .env
 
 echo "export ZAP_KEY=<ZAP_KEY>" >> .env
@@ -65,7 +65,7 @@ python3 manage.py migrate
 # Setup frontend
 cd ../frontend
 npm i
-echo "REACT_APP_API_URL = http://$db_host:8000/api" >> .env
+echo "REACT_APP_API_URL = http://localhost:8000/api" >> .env
 
 
 
