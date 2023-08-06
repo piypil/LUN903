@@ -16,8 +16,8 @@ GRANT ALL PRIVILEGES ON DATABASE stiefmutterchen TO admin;
 EOF
 
 # Clone repository and setup virtual environment
-git clone https://github.com/piypil/stiefmutterchen.git
-cd stiefmutterchen/lilie 
+
+cd lilie/
 sudo apt install python3-venv
 python3 -m venv env
 . env/bin/activate
@@ -32,7 +32,7 @@ echo 'export PATH=$PATH:'$HOME'/stiefmutterchen/dependency-check/bin' >> ~/.bash
 source ~/.bashrc
 
 # Apply migrations and run server
-cd /lilie
+cd lilie/
 python3 manage.py makemigrations core 
 python3 manage.py migrate
 
