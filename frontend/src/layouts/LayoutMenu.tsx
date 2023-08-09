@@ -9,11 +9,11 @@ import {
 } from '@ant-design/icons';
 import { Layout, Menu, Switch } from 'antd';
 import { Col, Row } from 'antd';
-import type { MenuTheme } from 'antd';
 import { Link } from "react-router-dom";
 import logo from '../assets/images/logo512.png';
 import Marquee from 'react-fast-marquee';
 import ScanProgress from '../components/ScanProgress';
+import { useTheme } from '../components/ThemeContext';
 
 const { Header, Sider, Content } = Layout;
 
@@ -23,16 +23,7 @@ interface LayoutMenuProps {
 
 export default function LayoutMenu({ children }: LayoutMenuProps) {
   const [collapsed, setCollapsed] = useState(false);
-  const [theme, setTheme] = useState<MenuTheme>(() => {
-    const localTheme = window.localStorage.getItem('theme');
-    return localTheme ? (localTheme as MenuTheme) : 'light';
-  });
-
-  const changeTheme = (value: boolean) => {
-    const newTheme = value ? 'dark' : 'light';
-    setTheme(newTheme);
-    window.localStorage.setItem('theme', newTheme);
-  };
+  const { theme, toggleTheme } = useTheme();
 
   const handleCollapseClick = useCallback(() => {
     setCollapsed((prevState) => !prevState);
@@ -108,7 +99,7 @@ export default function LayoutMenu({ children }: LayoutMenuProps) {
               <div>
               <Switch
                 checked={theme === 'dark'}
-                onChange={changeTheme}
+                onChange={toggleTheme}
                 checkedChildren="Dark"
                 unCheckedChildren="Light"
               />
