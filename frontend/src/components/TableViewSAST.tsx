@@ -5,6 +5,7 @@ import type { ColumnsType } from 'antd/es/table';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import moment from 'moment';
+import { useTheme } from '../components/ThemeContext';
 
 const { confirm } = Modal;
 
@@ -20,6 +21,7 @@ interface FileData {
 export function TableViewSAST() {
   const [data, setData] = useState<FileData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const { theme } = useTheme();
 
   const deleteRecord = (id: number) => {
     // надо добавить удаление записи
@@ -90,12 +92,15 @@ export function TableViewSAST() {
       });
   }, []);
 
+  const tableClassName = theme === 'dark' ? 'dark-theme' : '';
+
   if (loading) {
     return <Spin size="large" />;
   }
 
   return (
     <Table
+      className={tableClassName}
       columns={columns}
       dataSource={data}
       rowKey={(record) => record.id.toString()}
@@ -104,4 +109,3 @@ export function TableViewSAST() {
 }
 
 export default TableViewSAST;
-

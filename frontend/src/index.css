@@ -11,3 +11,33 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.dark-theme .ant-table {
+  background-color: #121920;
+}
+
+.dark-theme .ant-table-thead > tr > th,
+.dark-theme .ant-table-tbody > tr > td {
+  border-bottom: 1px solid #f0f0f0;
+  color: #f0f0f0;
+}
+
+.dark-theme .ant-table-thead > tr > th {
+  background-color: #1c2530;
+}
+
+.dark-theme .ant-table-tbody > tr > td {
+  background-color: #121920;
+}
+
+.dark-theme .ant-table-tbody > tr.ant-table-row:hover > td {
+  background-color: #1c2530;
+}
+
+.line-highlight-dark {
+  background-color: orange; 
+}
+
+.line-highlight-light {
+  background-color: yellow;
+}

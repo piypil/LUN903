@@ -1,15 +1,17 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Typography, Row, Col, Tabs, Descriptions, Tag } from 'antd';
+import { Typography, Row, Col, Descriptions, Tag } from 'antd';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import CodeMirror from '@uiw/react-codemirror';
-import { EditorView } from '@codemirror/view';
 import { classname } from '@uiw/codemirror-extensions-classname';
 import { langs } from '@uiw/codemirror-extensions-langs';
 import LayoutMenu from '../layouts/LayoutMenu';
 import { Menu } from 'antd';
 import { AppstoreOutlined } from '@ant-design/icons';
 import { Card } from 'antd';
+import { useTheme } from '../components/ThemeContext';
+import { tokyoNight } from '@uiw/codemirror-theme-tokyo-night';
+import { tokyoNightDay } from '@uiw/codemirror-theme-tokyo-night-day';
 
 const { Title } = Typography;
 const API_BASE_URL = process.env.REACT_APP_API_URL;
@@ -48,10 +50,21 @@ const ProjectResultsPageSAST: React.FC = () => {
   const [vulnerabilities, setVulnerabilities] = useState<Vulnerability[]>([]);
   const [selectedVulnerability, setSelectedVulnerability] = useState<Vulnerability | null>(null);
   const [code, setCode] = useState<string>('');
-  const showVulnerabilityDetails = (vulnerability: Vulnerability) => {
-    setSelectedVulnerability(vulnerability);
-  };
   const codeContainerRef = useRef<HTMLDivElement>(null);
+  const { theme } = useTheme();
+  const codeMirrorTheme = theme === 'dark' ? tokyoNight : tokyoNightDay;
+
+  const lineHighlightClass = `line-highlight-${theme}`;
+  const codeMirrorExtensions = [
+    langs.python(),
+    classname({
+      add: (lineNumber: number) => {
+        if (lineNumber === selectedVulnerability?.line_number) {
+          return lineHighlightClass;
+        }
+      },
+    }),
+  ];
 
   useEffect(() => {
     Promise.all([
@@ -94,35 +107,30 @@ const ProjectResultsPageSAST: React.FC = () => {
       });
   };
 
-  const themeDemo = EditorView.baseTheme({
-    '&dark .line-color': { backgroundColor: 'orange' },
-    '&light .line-color': { backgroundColor: 'orange' },
-  });
-
-  const classnameExt = classname({
-    add: (lineNumber: number) => {
-      if (lineNumber === selectedVulnerability?.line_number) {
-        return 'line-color';
-      }
-    },
-  });
-
   const categories = Array.from(new Set(vulnerabilities.map((vuln) => vuln.test_name)));
 
   return (
-    <div>
+    <div className={theme === 'dark' ? 'dark-theme' : ''}>
       <LayoutMenu>
         <Title level={2}>{projectName}</Title>
         <Row gutter={[16, 16]}>
           <Col span={16}>
-            <div className="code-container" style={{ height: '100vh', overflowY: 'auto' }} ref={codeContainerRef}>
-              {selectedVulnerability && (
-                <CodeMirror value={code} extensions={[themeDemo, classnameExt, langs.python()]} />
-              )}
-            </div>
+          <div
+          className={`code-container ${theme}-theme`}
+          style={{ height: '100vh', overflowY: 'auto' }}
+          ref={codeContainerRef}
+        >
+          {selectedVulnerability && (
+            <CodeMirror
+              value={code}
+              theme={codeMirrorTheme}
+              extensions={codeMirrorExtensions}
+            />
+          )}
+        </div>
           </Col>
           <Col span={8}>
-            <Menu mode="inline" theme="dark" style={{ height: '50vh', overflowY: 'auto' }} defaultOpenKeys={categories}>
+            <Menu mode="inline" theme={theme} style={{ height: '50vh', overflowY: 'auto' }} defaultOpenKeys={categories}>
               {categories.map((category) => (
                 <Menu.SubMenu key={category} title={category} icon={<AppstoreOutlined />}>
                   {vulnerabilities
@@ -136,32 +144,32 @@ const ProjectResultsPageSAST: React.FC = () => {
               ))}
             </Menu>
             {selectedVulnerability && (
-                <Card title={selectedVulnerability.test_name} style={{ width: '100%', marginTop: 10 }}>
-                  <p>{selectedVulnerability.issue_text}</p>
-                  <Descriptions bordered column={1}>
-                    <Descriptions.Item label="CWE">
-                      <a href={selectedVulnerability.issue_cwe.link} target="_blank" rel="noopener noreferrer">
-                        {selectedVulnerability.issue_cwe.id}
-                      </a>
-                    </Descriptions.Item>
-                    <Descriptions.Item label="Severity">
-                      <Tag color={getColor(selectedVulnerability.issue_severity)}>
-                        {selectedVulnerability.issue_severity}
-                      </Tag>
-                    </Descriptions.Item>
-                    <Descriptions.Item label="Confidence">
-                      <Tag color={getColor(selectedVulnerability.issue_confidence)}>
-                        {selectedVulnerability.issue_confidence}
-                      </Tag>
-                    </Descriptions.Item>
-                  </Descriptions>
-                </Card>
-              )}
+              <Card title={selectedVulnerability.test_name} style={{ width: '100%', marginTop: 10 }} className={`${theme}-theme`}>                
+              <p>{selectedVulnerability.issue_text}</p>
+                <Descriptions bordered column={1}>
+                  <Descriptions.Item label="CWE">
+                    <a href={selectedVulnerability.issue_cwe.link} target="_blank" rel="noopener noreferrer">
+                      {selectedVulnerability.issue_cwe.id}
+                    </a>
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Severity">
+                    <Tag color={getColor(selectedVulnerability.issue_severity)}>
+                      {selectedVulnerability.issue_severity}
+                    </Tag>
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Confidence">
+                    <Tag color={getColor(selectedVulnerability.issue_confidence)}>
+                      {selectedVulnerability.issue_confidence}
+                    </Tag>
+                  </Descriptions.Item>
+                </Descriptions>
+              </Card>
+            )}
           </Col>
         </Row>
       </LayoutMenu>
     </div>
-  );  
+  );   
 };
 
 export default ProjectResultsPageSAST;

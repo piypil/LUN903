@@ -5,6 +5,7 @@ import type { ColumnsType } from 'antd/es/table';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import moment from 'moment';
+import { useTheme } from '../components/ThemeContext';
 
 const { confirm } = Modal;
 
@@ -21,6 +22,7 @@ interface ProjectData {
 export function TableViewDAST() {
   const [data, setData] = useState<ProjectData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const { theme } = useTheme();
 
   const deleteRecord = (id: number) => {
     // Надо добавить удаление записи
@@ -95,12 +97,15 @@ export function TableViewDAST() {
       });
   }, []);
 
+  const tableClassName = theme === 'dark' ? 'dark-theme' : '';
+
   if (loading) {
     return <Spin size="large" />;
   }
 
   return (
     <Table
+      className={tableClassName}
       columns={columns}
       dataSource={data}
       rowKey={(record) => record.id.toString()}

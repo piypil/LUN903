@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { InboxOutlined } from '@ant-design/icons';
 import { Input, Col, Row, Button, message, Upload } from 'antd';
 import axios from 'axios';
+import { useTheme } from '../components/ThemeContext';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL;
 
@@ -11,6 +12,9 @@ interface UploadFileProps {
 
 export function UploadFile({ setShowSuccessMessage }: UploadFileProps) {
   const { Dragger } = Upload;
+  const { theme } = useTheme();
+
+  const textColor = theme === 'dark' ? '#f0f0f0' : '#121920';
 
   const [fileList, setFileList] = useState<any[]>([]);
   const [projectName, setProjectName] = useState('');
@@ -42,13 +46,14 @@ export function UploadFile({ setShowSuccessMessage }: UploadFileProps) {
   };
 
   return (
-    <div style={{ marginBottom: 16 }}>
+    <div style={{ marginBottom: 16, color: textColor }}>
       <Row gutter={16} justify="center" align="middle">
         <Col xs={24} sm={10}>
           <Input
             placeholder="Название проекта"
             value={projectName}
             onChange={(e) => setProjectName(e.target.value)}
+            style={{ color: textColor }}
           />
         </Col>
         <Col xs={24} sm={10}>
@@ -61,13 +66,13 @@ export function UploadFile({ setShowSuccessMessage }: UploadFileProps) {
             fileList={fileList}
             onChange={handleFileChange}
             beforeUpload={() => false}
-            style={{ width: '100%' }}
+            style={{ width: '100%', color: textColor }}
             multiple={false}
           >
             <p className="ant-upload-drag-icon">
               <InboxOutlined />
             </p>
-            <p className="ant-upload-text">Кликните или перетащите файл для загрузки</p>
+            <p className="ant-upload-text" style={{ color: textColor }}>Кликните или перетащите файл для загрузки</p>
           </Dragger>
         </Col>
       </Row>
