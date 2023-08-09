@@ -112,7 +112,7 @@ export default function LayoutMenu({ children }: LayoutMenuProps) {
             margin: '14px 16px',
             padding: 24,
             minHeight: 280,
-            background: theme === 'dark' ? '#1a2530' : '#ffffff',
+            background: theme === 'dark' ? '#191B26' : '#ffffff',
             color: theme === 'dark' ? '#fff' : '#000',
           }}
         >

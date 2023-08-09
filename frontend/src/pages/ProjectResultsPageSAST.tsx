@@ -11,7 +11,7 @@ import { AppstoreOutlined } from '@ant-design/icons';
 import { Card } from 'antd';
 import { useTheme } from '../components/ThemeContext';
 import { tokyoNight } from '@uiw/codemirror-theme-tokyo-night';
-import { tokyoNightDay } from '@uiw/codemirror-theme-tokyo-night-day';
+import { githubLight } from '@uiw/codemirror-theme-github'
 
 const { Title } = Typography;
 const API_BASE_URL = process.env.REACT_APP_API_URL;
@@ -19,7 +19,7 @@ const API_BASE_URL = process.env.REACT_APP_API_URL;
 function getColor(priority: string) {
   switch (priority) {
     case 'LOW':
-      return 'default';
+      return 'blue';
     case 'MEDIUM':
       return 'orange';
     case 'HIGH':
@@ -52,7 +52,7 @@ const ProjectResultsPageSAST: React.FC = () => {
   const [code, setCode] = useState<string>('');
   const codeContainerRef = useRef<HTMLDivElement>(null);
   const { theme } = useTheme();
-  const codeMirrorTheme = theme === 'dark' ? tokyoNight : tokyoNightDay;
+  const codeMirrorTheme = theme === 'dark' ? tokyoNight : githubLight;
 
   const lineHighlightClass = `line-highlight-${theme}`;
   const codeMirrorExtensions = [
@@ -130,7 +130,14 @@ const ProjectResultsPageSAST: React.FC = () => {
         </div>
           </Col>
           <Col span={8}>
-            <Menu mode="inline" theme={theme} style={{ height: '50vh', overflowY: 'auto' }} defaultOpenKeys={categories}>
+            <Menu mode="inline" theme={theme} 
+            style={{ 
+              height: '50vh', 
+              overflowY: 'auto', 
+              background: theme === 'dark' ? '#191B26' : '#FFFFFF',
+              color: theme === 'dark' ? '#fff' : '#000', 
+            }} 
+            defaultOpenKeys={categories}>
               {categories.map((category) => (
                 <Menu.SubMenu key={category} title={category} icon={<AppstoreOutlined />}>
                   {vulnerabilities
@@ -144,20 +151,43 @@ const ProjectResultsPageSAST: React.FC = () => {
               ))}
             </Menu>
             {selectedVulnerability && (
-              <Card title={selectedVulnerability.test_name} style={{ width: '100%', marginTop: 10 }} className={`${theme}-theme`}>                
+              <Card title={selectedVulnerability.test_name}   
+              bodyStyle={{
+                backgroundColor: theme === 'dark' ? '#191B26' : '#FFFFFF',
+                padding: '20px',
+                fontSize: '16px',
+              }}
+              style={{ 
+                width: '100%', marginTop: 10,             
+                background: theme === 'dark' ? '#191B26' : '#ffffff',
+                color: theme === 'dark' ? '#fff' : '#000',}} 
+                className={`${theme}-theme`}>                
               <p>{selectedVulnerability.issue_text}</p>
-                <Descriptions bordered column={1}>
-                  <Descriptions.Item label="CWE">
+                <Descriptions
+                   contentStyle={{
+                    color: 'red',
+                    fontWeight: 'bold',
+                  }}
+                  bordered
+                  column={1}
+                 >
+                  <Descriptions.Item label="CWE"              
+                  style={{             
+                    color: theme === 'dark' ? '#fff' : '#000',}} >
                     <a href={selectedVulnerability.issue_cwe.link} target="_blank" rel="noopener noreferrer">
                       {selectedVulnerability.issue_cwe.id}
                     </a>
                   </Descriptions.Item>
-                  <Descriptions.Item label="Severity">
+                  <Descriptions.Item label="Severity"
+                  style={{             
+                    color: theme === 'dark' ? '#fff' : '#000',}}>
                     <Tag color={getColor(selectedVulnerability.issue_severity)}>
                       {selectedVulnerability.issue_severity}
                     </Tag>
                   </Descriptions.Item>
-                  <Descriptions.Item label="Confidence">
+                  <Descriptions.Item label="Confidence"
+                  style={{             
+                    color: theme === 'dark' ? '#fff' : '#000',}}>
                     <Tag color={getColor(selectedVulnerability.issue_confidence)}>
                       {selectedVulnerability.issue_confidence}
                     </Tag>

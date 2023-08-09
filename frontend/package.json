@@ -11,6 +11,7 @@
     "@types/node": "^16.18.36",
     "@types/react": "^18.2.12",
     "@types/react-dom": "^18.2.5",
+    "@uiw/codemirror-theme-github": "^4.21.9",
     "@uiw/codemirror-theme-tokyo-night": "^4.21.9",
     "@uiw/codemirror-theme-tokyo-night-day": "^4.21.9",
     "@uiw/codemirror-themes": "^4.21.8",
