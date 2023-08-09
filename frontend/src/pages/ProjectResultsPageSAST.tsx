@@ -107,12 +107,28 @@ const ProjectResultsPageSAST: React.FC = () => {
       });
   };
 
+  const shortenPath = (path: string): string => {
+    const marker = '/lilie/project_scann/';
+    const parts = path.split(marker);
+    if (parts.length > 1) {
+      const postMarkerPart = parts[1].split('/');
+      return postMarkerPart.slice(1).join('/');
+    }
+    return path;
+  };
+
   const categories = Array.from(new Set(vulnerabilities.map((vuln) => vuln.test_name)));
 
   return (
     <div className={theme === 'dark' ? 'dark-theme' : ''}>
       <LayoutMenu>
-        <Title level={2}>{projectName}</Title>
+        <Title 
+          level={2}
+          style={{             
+            color: theme === 'dark' ? '#fff' : '#000'
+          }}
+        >{projectName}
+        </Title>
         <Row gutter={[16, 16]}>
           <Col span={16}>
           <div
@@ -144,14 +160,14 @@ const ProjectResultsPageSAST: React.FC = () => {
                     .filter((vuln) => vuln.test_name === category)
                     .map((vuln) => (
                       <Menu.Item onClick={() => handleRowClick(vuln)}>
-                        {vuln.filename}
+                        {shortenPath(vuln.filename)}
                       </Menu.Item>
                     ))}
                 </Menu.SubMenu>
               ))}
             </Menu>
             {selectedVulnerability && (
-              <Card title={selectedVulnerability.test_name}   
+              <Card title={<span style={{ color: theme === 'dark' ? '#fff' : '#000' }}>{selectedVulnerability.test_name}</span>}
               bodyStyle={{
                 backgroundColor: theme === 'dark' ? '#191B26' : '#FFFFFF',
                 padding: '20px',
@@ -172,14 +188,22 @@ const ProjectResultsPageSAST: React.FC = () => {
                   column={1}
                  >
                   <Descriptions.Item label="CWE"              
-                  style={{             
-                    color: theme === 'dark' ? '#fff' : '#000',}} >
+                  style={{            
+                    padding: '10px',
+                    fontSize: '14px',
+                    borderLeft: '3px solid #ff5733',
+                    backgroundColor: theme === 'dark' ? '#121920' : '#FFFFFF',
+                    color: theme === 'dark' ? '#fff' : '#000',}}>
                     <a href={selectedVulnerability.issue_cwe.link} target="_blank" rel="noopener noreferrer">
                       {selectedVulnerability.issue_cwe.id}
                     </a>
                   </Descriptions.Item>
                   <Descriptions.Item label="Severity"
                   style={{             
+                    padding: '10px',
+                    fontSize: '14px',
+                    borderLeft: '3px solid #ff5733',
+                    backgroundColor: theme === 'dark' ? '#121920' : '#FFFFFF',
                     color: theme === 'dark' ? '#fff' : '#000',}}>
                     <Tag color={getColor(selectedVulnerability.issue_severity)}>
                       {selectedVulnerability.issue_severity}
@@ -187,6 +211,10 @@ const ProjectResultsPageSAST: React.FC = () => {
                   </Descriptions.Item>
                   <Descriptions.Item label="Confidence"
                   style={{             
+                    padding: '10px',
+                    fontSize: '14px',
+                    borderLeft: '3px solid #ff5733',
+                    backgroundColor: theme === 'dark' ? '#121920' : '#FFFFFF',
                     color: theme === 'dark' ? '#fff' : '#000',}}>
                     <Tag color={getColor(selectedVulnerability.issue_confidence)}>
                       {selectedVulnerability.issue_confidence}
