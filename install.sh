@@ -45,7 +45,7 @@ EOF
 } >> lilie/.env
 
 sudo apt install python3-venv
-python3 -m venv /lilie/env
+python3 -m venv lilie/env
 source lilie/env/bin/activate
 pip install -r requirements.txt
 
