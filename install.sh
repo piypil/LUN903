@@ -42,11 +42,11 @@ EOF
   export DJANGO_SECRET_KEY=$django_secret_key
   export DJANGO_DEBUG=$django_debug
   export DJANGO_ALLOWED_HOSTS=$db_host
-} >> /lilie/.env
+} >> lilie/.env
 
 sudo apt install python3-venv
 python3 -m venv /lilie/env
-source /lilie/env/bin/activate
+source lilie/env/bin/activate
 pip install -r requirements.txt
 
 # DependencyCheck installation
@@ -58,11 +58,11 @@ rm dependency-check-8.3.1-release.zip
 
 # Apply migrations and run server
 
-python3 /lilie/manage.py makemigrations core 
-python3 /lilie/manage.py migrate
+python3 lilie/manage.py makemigrations core 
+python3 lilie/manage.py migrate
 
 # Setup frontend
-cd /frontend || exit
+cd frontend/ || exit
 npm i
 echo "REACT_APP_API_URL = http://localhost:8000/api" >> .env
 
