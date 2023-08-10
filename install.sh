@@ -29,19 +29,19 @@ GRANT ALL PRIVILEGES ON DATABASE stiefmutterchen TO admin;
 EOF
 
 {
-  export DB_NAME=stiefmutterchen
-  export DB_USER=admin
-  export DB_PASS=$db_pass
-  export DB_HOST=localhost
-  export DB_PORT=5432
+  echo "export DB_NAME=stiefmutterchen"
+  echo "export DB_USER=admin"
+  echo "export DB_PASS=$db_pass"
+  echo "export DB_HOST=localhost"
+  echo "export DB_PORT=5432"
 
-  export ZAP_KEY=ZAP_KEY
-  export ZAP_PORT=8080
-  export ZAP_HOST=localhost
+  echo "export ZAP_KEY=ZAP_KEY"
+  echo "export ZAP_PORT=8080"
+  echo "export ZAP_HOST=localhost"
 
-  export DJANGO_SECRET_KEY=$django_secret_key
-  export DJANGO_DEBUG=$django_debug
-  export DJANGO_ALLOWED_HOSTS=$db_host
+  echo "export DJANGO_SECRET_KEY=$django_secret_key"
+  echo "export DJANGO_DEBUG=$django_debug"
+  echo "export DJANGO_ALLOWED_HOSTS=$db_host"
 } >> lilie/.env
 
 sudo apt install python3-venv
