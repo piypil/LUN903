@@ -3,13 +3,12 @@ sudo apt update
 sudo apt install python3-pip python3-dev libpq-dev postgresql postgresql-contrib nodejs npm
 
 # Setup virtual environment and configure project settings
-cd lilie/
-read -sp "Enter the DB_PASS: " db_pass
+read -srp "Enter the DB_PASS: " db_pass
 
 db_host=$(hostname -I | awk '{print $1}')
 django_secret_key=$(openssl rand -hex 32)
 
-read -p "Enable DJANGO_DEBUG mode? (y/n): " debug_choice
+read -rp "Enable DJANGO_DEBUG mode? (y/n): " debug_choice
 if [ "$debug_choice" = "y" ]; then
   django_debug="True"
 else
@@ -29,41 +28,41 @@ GRANT ALL PRIVILEGES ON DATABASE stiefmutterchen TO admin;
 \q
 EOF
 
-echo "export DB_NAME=stiefmutterchen" >> .env
-echo "export DB_USER=admin" >> .env
-echo "export DB_PASS=$db_pass" >> .env
-echo "export DB_HOST=localhost" >> .env
-echo "export DB_PORT=5432" >> .env
+{
+  export DB_NAME=stiefmutterchen
+  export DB_USER=admin
+  export DB_PASS=$db_pass
+  export DB_HOST=localhost
+  export DB_PORT=5432
 
-echo "export ZAP_KEY=<ZAP_KEY>" >> .env
-echo "export ZAP_PORT=8080" >> .env
-echo "export ZAP_HOST=localhost" >> .env
+  export ZAP_KEY=ZAP_KEY
+  export ZAP_PORT=8080
+  export ZAP_HOST=localhost
 
-echo "export DJANGO_SECRET_KEY=$django_secret_key" >> .env
-echo "export DJANGO_DEBUG=$django_debug" >> .env
-echo "export DJANGO_ALLOWED_HOSTS=$db_host" >> .env
+  export DJANGO_SECRET_KEY=$django_secret_key
+  export DJANGO_DEBUG=$django_debug
+  export DJANGO_ALLOWED_HOSTS=$db_host
+} >> /lilie/.env
 
 sudo apt install python3-venv
-python3 -m venv env
-source env/bin/activate
-cd ..
+python3 -m venv /lilie/env
+source /lilie/env/bin/activate
 pip install -r requirements.txt
 
 # DependencyCheck installation
 sudo apt install default-jre unzip
 wget https://github.com/jeremylong/DependencyCheck/releases/download/v8.3.1/dependency-check-8.3.1-release.zip
 unzip dependency-check-8.3.1-release.zip
-echo 'export PATH=$PATH:'$HOME'/stiefmutterchen/dependency-check/bin' >> ~/.bashrc
-source ~/.bashrc
+echo "export PATH=\$PATH:\$HOME/stiefmutterchen/dependency-check/bin" >> ~/.bashrc && source ~/.bashrc
 rm dependency-check-8.3.1-release.zip
 
 # Apply migrations and run server
-cd lilie/
-python3 manage.py makemigrations core 
-python3 manage.py migrate
+
+python3 /lilie/manage.py makemigrations core 
+python3 /lilie/manage.py migrate
 
 # Setup frontend
-cd ../frontend
+cd /frontend || exit
 npm i
 echo "REACT_APP_API_URL = http://localhost:8000/api" >> .env
 
