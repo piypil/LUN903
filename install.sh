@@ -47,7 +47,7 @@ EOF
 sudo apt install python3-venv
 python3 -m venv lilie/env
 source lilie/env/bin/activate
-pip install -r lilie/requirements.txt
+pip install -r requirements.txt
 
 # DependencyCheck installation
 sudo apt install default-jre unzip
@@ -57,6 +57,7 @@ echo "export PATH=\$PATH:\$HOME/stiefmutterchen/dependency-check/bin" >> ~/.bash
 rm dependency-check-8.3.1-release.zip
 
 # Apply migrations and run server
+
 python3 lilie/manage.py makemigrations core 
 python3 lilie/manage.py migrate
 
