@@ -57,6 +57,8 @@ MIDDLEWARE = [
 ]
 
 REST_FRAMEWORK = {
+    'DEFAULT_THROTTLE_CLASSES'
+    'DEFAULT_THROTTLE_RATES'
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny'
     ]
