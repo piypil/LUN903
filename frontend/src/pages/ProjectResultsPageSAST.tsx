@@ -95,9 +95,19 @@ const ProjectResultsPageSAST: React.FC = () => {
     }
   };
 
+  const shortenPathApi = (path: string): string => {
+    const marker = '/lilie/';
+    const parts = path.split(marker);
+    if (parts.length > 1) {
+      const postMarkerPart = parts[1].split('/');
+      return postMarkerPart.slice(1).join('/');
+    }
+    return path;
+  };
+
   const fetchCode = (filePath: string) => {
     axios
-      .get(`${API_BASE_URL}/code/?file_path=${filePath}`)
+      .get(`${API_BASE_URL}/code/?file_path=${shortenPathApi(filePath)}`)
       .then((response) => {
         const data = response.data;
         setCode(data.code);
