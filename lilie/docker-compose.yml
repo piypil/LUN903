@@ -1,0 +1,32 @@
+version: "3.5"
+services:
+  lilie-backend-app:
+    build: .
+    container_name: lun903-lilie-backend
+    ports:
+      - 8000:8000
+    restart: unless-stopped
+    depends_on:
+      - app-db
+    networks:
+      - localnet
+  app-db:
+    env_file:
+      - .env
+    image: postgres:latest
+    container_name: lun903-db
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASS}
+      - POSTGRES_DB=${DB_NAME}
+    volumes:
+      - ../scripts:/docker-entrypoint-initdb.d
+    restart: unless-stopped
+    networks:
+      - localnet
+networks:
+  localnet:
+    name: localnet
+    driver: bridge

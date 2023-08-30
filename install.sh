@@ -17,19 +17,19 @@ fi
 
 # PostgreSQL installation
 sudo -u postgres psql << EOF
-CREATE DATABASE stiefmutterchen;
+CREATE DATABASE lun903;
 CREATE ROLE admin WITH PASSWORD '$db_pass';
 ALTER ROLE admin WITH LOGIN;
 ALTER ROLE admin SET client_encoding TO 'utf8';
 ALTER ROLE admin SET default_transaction_isolation TO 'read committed';
 ALTER ROLE admin SET timezone TO 'UTC';
-ALTER DATABASE stiefmutterchen OWNER TO admin;
-GRANT ALL PRIVILEGES ON DATABASE stiefmutterchen TO admin;
+ALTER DATABASE lun903 OWNER TO admin;
+GRANT ALL PRIVILEGES ON DATABASE lun903 TO admin;
 \q
 EOF
 
 {
-  echo "export DB_NAME=stiefmutterchen"
+  echo "export DB_NAME=lun903"
   echo "export DB_USER=admin"
   echo "export DB_PASS=$db_pass"
   echo "export DB_HOST=localhost"
@@ -53,7 +53,7 @@ pip install -r requirements.txt
 sudo apt install default-jre unzip
 wget https://github.com/jeremylong/DependencyCheck/releases/download/v8.3.1/dependency-check-8.3.1-release.zip
 unzip dependency-check-8.3.1-release.zip
-echo "export PATH=\$PATH:\$HOME/stiefmutterchen/dependency-check/bin" >> ~/.bashrc && source ~/.bashrc
+echo "export PATH=\$PATH:\$HOME/LUN903/dependency-check/bin" >> ~/.bashrc && source ~/.bashrc
 rm dependency-check-8.3.1-release.zip
 
 # Apply migrations and run server

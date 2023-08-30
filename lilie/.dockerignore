@@ -1,0 +1,8 @@
+# Common
+docker-compose.yml
+Dockerfile
+/uploads
+/project_scann
+__pycache__
+__init__.py
+
