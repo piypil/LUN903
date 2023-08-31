@@ -42,11 +42,11 @@ def extract_zip_file(file_data, random_id):
 
 def connect_to_database():
     conn = psycopg2.connect(
-        dbname=config.DB_NAME,
-        user=config.DB_USER,
-        password=config.DB_PASS,
-        host=config.DB_HOST,
-        port=config.DB_PORT
+        dbname=config.POSTGRES_DB,
+        user=config.POSTGRES_USER,
+        password=config.POSTGRES_PASSWORD,
+        host=config.POSTGRES_HOST,
+        port=config.POSTGRES_PORT
     )
     return conn
 

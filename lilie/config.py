@@ -4,11 +4,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-DB_HOST = str(os.getenv("DB_HOST"))
-DB_PORT = str(os.getenv("DB_PORT"))
-DB_USER = str(os.getenv("DB_USER"))
-DB_PASS = str(os.getenv("DB_PASS"))
-DB_NAME = str(os.getenv("DB_NAME"))
+POSTGRES_HOST = str(os.getenv("POSTGRES_HOST"))
+POSTGRES_PORT = str(os.getenv("POSTGRES_PORT"))
+POSTGRES_USER = str(os.getenv("POSTGRES_USER"))
+POSTGRES_PASSWORD = str(os.getenv("POSTGRES_PASSWORD"))
+POSTGRES_DB = str(os.getenv("POSTGRES_DB"))
 
 ZAP_KEY = str(os.getenv("ZAP_KEY"))
 ZAP_PORT = str(os.getenv("ZAP_PORT"))
