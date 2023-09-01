@@ -1,7 +1,7 @@
 FROM --platform=arm64 python:3.11.5-alpine3.17
 EXPOSE 8000
 WORKDIR /lilie
-COPY . /lilie
+COPY ./lilie /lilie
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 RUN apk add --no-cache openjdk11-jre unzip
@@ -13,6 +13,7 @@ RUN unzip dependency-check-8.3.1-release.zip
 RUN rm dependency-check-8.3.1-release.zip
 ENV PATH=$PATH:/lilie/dependency-check/bin
 
+COPY ./scripts/entrypoint.sh /lilie/entrypoint.sh
 RUN chmod +x entrypoint.sh
 ENTRYPOINT ["/lilie/entrypoint.sh"]
 CMD ["python3", "manage.py", "runserver", "0.0.0.0:8000"]

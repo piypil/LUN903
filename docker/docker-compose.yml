@@ -1,7 +1,9 @@
 version: "3.5"
 services:
   app-lilie-backend:
-    build: .
+    build:
+      context: ..
+      dockerfile: ./docker/Dockerfile-lilie
     container_name: lun903-lilie-backend
     ports:
       - 8000:8000
@@ -11,9 +13,20 @@ services:
       - app-owasp-zap-backend
     networks:
       - localnet
+  app-frontend:
+    build:
+      context: ..
+      dockerfile: ./docker/Dockerfile-frontend
+    ports:
+      - 3000:3000
+    restart: unless-stopped
+    depends_on:
+      - app-lilie-backend
+    networks:
+      - localnet
   app-db:
     env_file:
-      - .env
+      - ../lilie/.env
     image: postgres:latest
     container_name: lun903-db
     ports:
@@ -25,7 +38,7 @@ services:
       - localnet
   app-owasp-zap-backend:
     env_file:
-      - .env
+      - ../lilie/.env
     image: owasp/zap2docker-stable:latest
     container_name: lun903-zap
     depends_on:
