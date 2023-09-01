@@ -29,19 +29,19 @@ GRANT ALL PRIVILEGES ON DATABASE lun903 TO admin;
 EOF
 
 {
-  echo "export POSTGRES_DB=lun903"
-  echo "export POSTGRES_USER=admin"
-  echo "export POSTGRES_PASSWORD=$POSTGRES_PASSWORD"
-  echo "export POSTGRES_HOST=localhost"
-  echo "export POSTGRES_PORT=5432"
+  echo "POSTGRES_DB=lun903"
+  echo "POSTGRES_USER=admin"
+  echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD"
+  echo "POSTGRES_HOST=localhost"
+  echo "POSTGRES_PORT=5432"
 
-  echo "export ZAP_KEY=ZAP_KEY"
-  echo "export ZAP_PORT=8080"
-  echo "export ZAP_HOST=localhost"
+  echo "ZAP_KEY=ZAP_KEY"
+  echo "ZAP_PORT=8080"
+  echo "ZAP_HOST=localhost"
 
-  echo "export DJANGO_SECRET_KEY=$django_secret_key"
-  echo "export DJANGO_DEBUG=$django_debug"
-  echo "export DJANGO_ALLOWED_HOSTS=$POSTGRES_HOST"
+  echo "DJANGO_SECRET_KEY=$django_secret_key"
+  echo "DJANGO_DEBUG=$django_debug"
+  echo "DJANGO_ALLOWED_HOSTS=$POSTGRES_HOST"
 } >> lilie/.env
 
 sudo apt install python3-venv
