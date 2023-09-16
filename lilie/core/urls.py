@@ -7,8 +7,8 @@ router.register('files', FilesViewSet, basename='files')
 
 urlpatterns = [
     path('api/', include(router.urls)),
-    path('api/results/<int:file_id>/', ResultsAPIView.as_view(), name='results-api'),
-    path('api/results-sca/<int:file_id>/', ResultsAPIViewSCA.as_view(), name='results-api-sca'),
+    path('api/results/<str:file_hash>/', ResultsAPIView.as_view(), name='results-api'),
+    path('api/results-sca/<str:file_hash>/', ResultsAPIViewSCA.as_view(), name='results-api-sca'),
     path('api/results-url/<int:project_id>/', ResultsUrlAPIView.as_view(), name='results-api-url'),
     path('api/scan-progress/', get_scan_progress),
     path('api/code/', CodeAPIView.as_view(), name='code-api'),

@@ -8,7 +8,7 @@ import { ProjectData, Result, UrlDetail } from '../types';
 const API_BASE_URL = process.env.REACT_APP_API_URL;
 
 const ProjectResultsPageDAST: React.FC = () => {
-  const { projectId } = useParams<{ projectId?: string }>();
+  const { fileHash } = useParams<{ fileHash?: string }>();
   const [projectData, setProjectData] = useState<ProjectData | null>(null);
   const [selectedUrlDetail, setSelectedUrlDetail] = useState<UrlDetail | null>(null);
 
@@ -21,11 +21,11 @@ const ProjectResultsPageDAST: React.FC = () => {
   };
 
   useEffect(() => {
-    if (projectId) {
+    if (fileHash) {
       axios
         .get(`${API_BASE_URL}/scanned-projects/`)
         .then((response) => {
-          const filteredProject = response.data.find((project: ProjectData) => project.id === parseInt(projectId));
+          const filteredProject = response.data.find((project: ProjectData) => project.id === parseInt(fileHash));
           if (filteredProject) {
             const resultsArray = JSON.parse(filteredProject.results);
             setProjectData({ ...filteredProject, results: resultsArray });
@@ -35,7 +35,7 @@ const ProjectResultsPageDAST: React.FC = () => {
           console.log(error);
         });
     }
-  }, [projectId]);
+  }, [fileHash]);
 
   if (!projectData) {
     return <div>Loading...</div>;

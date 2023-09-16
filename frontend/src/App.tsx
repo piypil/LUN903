@@ -17,8 +17,8 @@ function App() {
             <Route path='/' element={<WelcomePage />} />
             <Route path='/about' element={<AboutPage />} />
             <Route path='/projects' element={<DashbordPage />} />
-            <Route path='/results/:projectId' element={<ProjectResultsPage />} />
-            <Route path='/results-dast/:projectId' element={<ProjectResultsPageDAST />} />
+            <Route path='/results/:fileHash' element={<ProjectResultsPage />} />
+            <Route path='/results-dast/:fileHash' element={<ProjectResultsPageDAST />} />
           </Routes>
         </ConfigProvider>
       </BrowserRouter>

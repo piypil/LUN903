@@ -27,12 +27,12 @@ progress_queue = Queue()
 progress = 0
 
 
-def get_last_uploaded_file_id(cursor):
-    cursor.execute("SELECT id FROM core_files ORDER BY id DESC LIMIT 1;")
+def get_last_uploaded_file_hash(cursor):
+    cursor.execute("SELECT file_hash FROM core_files ORDER BY file_hash DESC LIMIT 1;")
     return cursor.fetchone()[0]
 
-def get_file_data(cursor, file_id):
-    cursor.execute("SELECT file FROM core_files WHERE id = %s", (file_id,))
+def get_file_data(cursor, file_hash):
+    cursor.execute("SELECT file FROM core_files WHERE file_hash = %s", (file_hash,))
     return cursor.fetchone()[0]
 
 def extract_zip_file(file_data, random_id):
@@ -67,9 +67,9 @@ def upload_file(progress_queue):
     conn = connect_to_database()
 
     with conn.cursor() as cur:
-        file_id = get_last_uploaded_file_id(cur)
-        file_data = get_file_data(cur, file_id)
-        path = extract_zip_file(file_data, file_id)
+        file_hash = get_last_uploaded_file_hash(cur)
+        file_data = get_file_data(cur, file_hash)
+        path = extract_zip_file(file_data, file_hash)
 
         bandit_process = multiprocessing.Process(target=bandit_scan_worker, args=(path, progress_queue))
         dependency_check_process = multiprocessing.Process(target=dependency_check_scan_worker, args=(path, progress_queue))
@@ -93,7 +93,7 @@ def upload_file(progress_queue):
     with open(path + '/resultDependencyCheckScan/dependency-check-report.json', 'r') as json_file:
         results_sca = json.load(json_file)
 
-    file_instance = Files.objects.get(id=file_id)
+    file_instance = Files.objects.get(file_hash=file_hash)
 
     with transaction.atomic():
         results_instance = Results(file=file_instance, result_data=results)
@@ -120,12 +120,12 @@ class FilesViewSet(viewsets.ModelViewSet):
         return response
 
 class ResultsAPIView(APIView):
-    def get(self, request, file_id):
-        results = Results.objects.filter(file_id=file_id)
+    def get(self, request, file_hash):
+        results = Results.objects.filter(file__file_hash=file_hash)
         data = []
         for result in results:
             result_data = {
-                'file_id': result.file_id,
+                'file_hash': result.file.file_hash,
                 'result_data': result.result_data,
                 'created_at': result.created_at
             }
@@ -133,12 +133,12 @@ class ResultsAPIView(APIView):
         return Response(data)
 
 class ResultsAPIViewSCA(APIView):
-    def get(self, request, file_id):
-        results = ResultsSCA.objects.filter(file_id=file_id)
+    def get(self, request, file_hash):
+        results = ResultsSCA.objects.filter(file__file_hash=file_hash)
         data = []
         for result in results:
             result_data = {
-                'file_id': result.file_id,
+                'file_hash': result.file.file_hash,
                 'result_data': result.result_data,
                 'created_at': result.created_at
             }
