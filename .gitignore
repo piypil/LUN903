@@ -11,6 +11,7 @@ models
 migrations
 uploads
 project_scann
+lun903_python
 
 # Environments 
 .env 

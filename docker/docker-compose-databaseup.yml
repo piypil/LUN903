@@ -1,0 +1,12 @@
+version: '3.5'
+services:
+  app-db:
+    env_file:
+      - ../lilie/.env
+    image: postgres:latest
+    container_name: lun903-db-testing
+    ports:
+     - 5432:5432
+    volumes:
+      - ../scripts:/docker-entrypoint-initdb.d
+    restart: unless-stopped

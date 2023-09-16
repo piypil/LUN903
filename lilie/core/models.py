@@ -17,3 +17,8 @@ class Results(models.Model):
     file = models.ForeignKey(Files, on_delete=models.CASCADE)
     result_data = models.JSONField()
     created_at = models.DateTimeField(auto_now_add=True)
+
+class ResultsSCA(models.Model):
+    file = models.ForeignKey(Files, on_delete=models.CASCADE)
+    result_data = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)

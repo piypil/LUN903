@@ -4,6 +4,7 @@ import os
 import config
 import json
 import multiprocessing
+import logging
 
 from rest_framework.decorators import api_view
 from rest_framework import viewsets, generics
@@ -14,11 +15,13 @@ from django.core.exceptions import AppRegistryNotReady
 from django.http import JsonResponse
 from multiprocessing import Queue
 
-from .models import Files, Results, ScannedProject
+from .models import Files, Results, ResultsSCA, ScannedProject
 from .serializer import FilesSerializer, ScannedProjectSerializer
 from zap import scanner_zap
 from tqdm import tqdm
 
+
+logger = logging.getLogger(__name__)
 
 progress_queue = Queue()
 progress = 0
@@ -87,10 +90,17 @@ def upload_file(progress_queue):
     with open(path + '/result', 'r') as json_file:
         results = json.load(json_file)
 
+    with open(path + '/resultDependencyCheckScan/dependency-check-report.json', 'r') as json_file:
+        results_sca = json.load(json_file)
+
+    file_instance = Files.objects.get(id=file_id)
+
     with transaction.atomic():
-        file_instance = Files.objects.get(id=file_id)
         results_instance = Results(file=file_instance, result_data=results)
+        results_instance_sca = ResultsSCA(file=file_instance, result_data=results_sca)
         results_instance.save()
+        results_instance_sca.save()
+
 
 @api_view(['GET'])
 def get_scan_progress(request):
@@ -112,6 +122,19 @@ class FilesViewSet(viewsets.ModelViewSet):
 class ResultsAPIView(APIView):
     def get(self, request, file_id):
         results = Results.objects.filter(file_id=file_id)
+        data = []
+        for result in results:
+            result_data = {
+                'file_id': result.file_id,
+                'result_data': result.result_data,
+                'created_at': result.created_at
+            }
+            data.append(result_data)
+        return Response(data)
+
+class ResultsAPIViewSCA(APIView):
+    def get(self, request, file_id):
+        results = ResultsSCA.objects.filter(file_id=file_id)
         data = []
         for result in results:
             result_data = {
