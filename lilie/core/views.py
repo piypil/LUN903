@@ -110,6 +110,15 @@ def get_scan_progress(request):
 
 class FilesViewSet(viewsets.ModelViewSet):
     serializer_class = FilesSerializer
+    queryset = Files.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        response = super().create(request, *args, **kwargs)
+
+        if response.status_code == 201:
+            upload_file(progress_queue)
+
+        return response
 
     def get_queryset(self):
         if "file_hash" in self.kwargs:
