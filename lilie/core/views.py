@@ -14,6 +14,7 @@ from django.db import transaction
 from django.core.exceptions import AppRegistryNotReady
 from django.http import JsonResponse
 from multiprocessing import Queue
+from django.shortcuts import get_object_or_404
 
 from .models import Files, Results, ResultsSCA, ScannedProject
 from .serializer import FilesSerializer, ScannedProjectSerializer
@@ -108,17 +109,19 @@ def get_scan_progress(request):
     return JsonResponse({'progress': progress})
 
 class FilesViewSet(viewsets.ModelViewSet):
-    queryset = Files.objects.all()
     serializer_class = FilesSerializer
 
-    def create(self, request, *args, **kwargs):
-        response = super().create(request, *args, **kwargs)
+    def get_queryset(self):
+        if "file_hash" in self.kwargs:
+            return Files.objects.filter(file_hash=self.kwargs["file_hash"])
+        return Files.objects.all()
 
-        if response.status_code == 201:
-            upload_file(progress_queue)
-
-        return response
-
+    def retrieve(self, request, *args, **kwargs):
+        file_hash = kwargs.get('file_hash')
+        file_instance = get_object_or_404(Files, file_hash=file_hash)
+        serializer = self.get_serializer(file_instance)
+        return Response(serializer.data)
+    
 class ResultsAPIView(APIView):
     def get(self, request, file_hash):
         results = Results.objects.filter(file__file_hash=file_hash)

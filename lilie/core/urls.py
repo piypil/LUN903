@@ -3,7 +3,6 @@ from rest_framework.routers import DefaultRouter
 from .views import FilesViewSet, ResultsAPIView, ResultsUrlAPIView, ResultsAPIViewSCA, CodeAPIView, scan_url, get_scan_progress, ScannedProjectListView
 
 router = DefaultRouter()
-router.register('files', FilesViewSet, basename='files')
 
 urlpatterns = [
     path('api/', include(router.urls)),
@@ -14,4 +13,6 @@ urlpatterns = [
     path('api/code/', CodeAPIView.as_view(), name='code-api'),
     path('api/scan-url/', scan_url, name='scan_url'),
     path('api/scanned-projects/', ScannedProjectListView.as_view(), name='scanned-projects-list'),
+    path('api/files/', FilesViewSet.as_view({'get': 'list', 'post': 'create'}), name='files-list-create'),
+    path('api/files/<str:file_hash>/', FilesViewSet.as_view({'get': 'retrieve'}), name='file-detail-by-hash'),
 ]
