@@ -1,5 +1,5 @@
 from django.db import models
-
+import uuid
 
 class ScannedProject(models.Model):
     project_name = models.CharField(max_length=255, default='Project')
@@ -12,6 +12,7 @@ class Files(models.Model):
     uploaded_at = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=255)
     project_id = models.CharField(max_length=10)
+    file_hash = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
 class Results(models.Model):
     file = models.ForeignKey(Files, on_delete=models.CASCADE)

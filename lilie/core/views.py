@@ -14,6 +14,7 @@ from django.db import transaction
 from django.core.exceptions import AppRegistryNotReady
 from django.http import JsonResponse
 from multiprocessing import Queue
+from django.shortcuts import get_object_or_404
 
 from .models import Files, Results, ResultsSCA, ScannedProject
 from .serializer import FilesSerializer, ScannedProjectSerializer
@@ -27,12 +28,12 @@ progress_queue = Queue()
 progress = 0
 
 
-def get_last_uploaded_file_id(cursor):
-    cursor.execute("SELECT id FROM core_files ORDER BY id DESC LIMIT 1;")
+def get_last_uploaded_file_hash(cursor):
+    cursor.execute("SELECT file_hash FROM core_files ORDER BY file_hash DESC LIMIT 1;")
     return cursor.fetchone()[0]
 
-def get_file_data(cursor, file_id):
-    cursor.execute("SELECT file FROM core_files WHERE id = %s", (file_id,))
+def get_file_data(cursor, file_hash):
+    cursor.execute("SELECT file FROM core_files WHERE file_hash = %s", (file_hash,))
     return cursor.fetchone()[0]
 
 def extract_zip_file(file_data, random_id):
@@ -67,9 +68,9 @@ def upload_file(progress_queue):
     conn = connect_to_database()
 
     with conn.cursor() as cur:
-        file_id = get_last_uploaded_file_id(cur)
-        file_data = get_file_data(cur, file_id)
-        path = extract_zip_file(file_data, file_id)
+        file_hash = get_last_uploaded_file_hash(cur)
+        file_data = get_file_data(cur, file_hash)
+        path = extract_zip_file(file_data, file_hash)
 
         bandit_process = multiprocessing.Process(target=bandit_scan_worker, args=(path, progress_queue))
         dependency_check_process = multiprocessing.Process(target=dependency_check_scan_worker, args=(path, progress_queue))
@@ -93,7 +94,7 @@ def upload_file(progress_queue):
     with open(path + '/resultDependencyCheckScan/dependency-check-report.json', 'r') as json_file:
         results_sca = json.load(json_file)
 
-    file_instance = Files.objects.get(id=file_id)
+    file_instance = Files.objects.get(file_hash=file_hash)
 
     with transaction.atomic():
         results_instance = Results(file=file_instance, result_data=results)
@@ -108,24 +109,26 @@ def get_scan_progress(request):
     return JsonResponse({'progress': progress})
 
 class FilesViewSet(viewsets.ModelViewSet):
-    queryset = Files.objects.all()
     serializer_class = FilesSerializer
 
-    def create(self, request, *args, **kwargs):
-        response = super().create(request, *args, **kwargs)
+    def get_queryset(self):
+        if "file_hash" in self.kwargs:
+            return Files.objects.filter(file_hash=self.kwargs["file_hash"])
+        return Files.objects.all()
 
-        if response.status_code == 201:
-            upload_file(progress_queue)
-
-        return response
-
+    def retrieve(self, request, *args, **kwargs):
+        file_hash = kwargs.get('file_hash')
+        file_instance = get_object_or_404(Files, file_hash=file_hash)
+        serializer = self.get_serializer(file_instance)
+        return Response(serializer.data)
+    
 class ResultsAPIView(APIView):
-    def get(self, request, file_id):
-        results = Results.objects.filter(file_id=file_id)
+    def get(self, request, file_hash):
+        results = Results.objects.filter(file__file_hash=file_hash)
         data = []
         for result in results:
             result_data = {
-                'file_id': result.file_id,
+                'file_hash': result.file.file_hash,
                 'result_data': result.result_data,
                 'created_at': result.created_at
             }
@@ -133,12 +136,12 @@ class ResultsAPIView(APIView):
         return Response(data)
 
 class ResultsAPIViewSCA(APIView):
-    def get(self, request, file_id):
-        results = ResultsSCA.objects.filter(file_id=file_id)
+    def get(self, request, file_hash):
+        results = ResultsSCA.objects.filter(file__file_hash=file_hash)
         data = []
         for result in results:
             result_data = {
-                'file_id': result.file_id,
+                'file_hash': result.file.file_hash,
                 'result_data': result.result_data,
                 'created_at': result.created_at
             }

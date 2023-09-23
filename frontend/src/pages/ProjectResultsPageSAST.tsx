@@ -45,7 +45,7 @@ interface Vulnerability {
 }
 
 const ProjectResultsPageSAST: React.FC = () => {
-  const { projectId } = useParams<{ projectId: string }>();
+  const { fileHash } = useParams<{ fileHash: string }>();
   const [projectName, setProjectName] = useState<string>('');
   const [vulnerabilities, setVulnerabilities] = useState<Vulnerability[]>([]);
   const [selectedVulnerability, setSelectedVulnerability] = useState<Vulnerability | null>(null);
@@ -68,8 +68,8 @@ const ProjectResultsPageSAST: React.FC = () => {
 
   useEffect(() => {
     Promise.all([
-      axios.get(`${API_BASE_URL}/files/${projectId}/`),
-      axios.get(`${API_BASE_URL}/results/${projectId}/`),
+      axios.get(`${API_BASE_URL}/files/${fileHash}/`),
+      axios.get(`${API_BASE_URL}/results/${fileHash}/`),
     ])
       .then(([projectResponse, resultsResponse]) => {
         const projectData = projectResponse.data;
@@ -80,7 +80,7 @@ const ProjectResultsPageSAST: React.FC = () => {
       .catch((error) => {
         console.error(error);
       });
-  }, [projectId]);
+  }, [fileHash]);
 
   const handleRowClick = (record: Vulnerability) => {
     setSelectedVulnerability(record);

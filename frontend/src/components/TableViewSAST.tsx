@@ -12,7 +12,7 @@ const { confirm } = Modal;
 const API_BASE_URL = process.env.REACT_APP_API_URL;
 
 interface FileData {
-  id: number;
+  file_hash: string;
   name: string;
   file: string;
   uploaded_at: string;
@@ -23,17 +23,23 @@ export function TableViewSAST() {
   const [loading, setLoading] = useState<boolean>(true);
   const { theme } = useTheme();
 
-  const deleteRecord = (id: number) => {
-    // надо добавить удаление записи
-    console.log('Delete record with id:', id);
+  const deleteRecord = (file_hash: string) => {
+    axios
+      .delete(`${API_BASE_URL}/files/${file_hash}/`)
+      .then((response) => {
+        setData(data.filter((record) => record.file_hash !== file_hash));
+      })
+      .catch((error) => {
+        console.log('Error deleting record:', error);
+      });
   }
 
-  const showDeleteConfirm = (id: number) => {
+  const showDeleteConfirm = (file_hash: string) => {
     confirm({
       title: 'Are you sure delete this record?',
       icon: <ExclamationCircleOutlined />,
       onOk() {
-        deleteRecord(id);
+        deleteRecord(file_hash);
       },
       onCancel() {
         console.log('Cancel');
@@ -48,14 +54,14 @@ export function TableViewSAST() {
       key: 'name',
       render: (name, record) => (
         <Space size="middle">
-          <Link to={`/results/${record.id}`}>{name}</Link>
+          <Link to={`/results/${record.file_hash}`}>{name}</Link>
         </Space>
       ),
     },
     {
       title: 'ID',
-      dataIndex: 'id',
-      key: 'id',
+      dataIndex: 'file_hash',
+      key: 'file_hash',
     },
     {
       title: 'Scan Date',
@@ -71,7 +77,7 @@ export function TableViewSAST() {
           <a href={record.file} target="_blank" rel="noopener noreferrer">
             Download
           </a>
-          <Button danger onClick={() => showDeleteConfirm(record.id)}>
+          <Button danger onClick={() => showDeleteConfirm(record.file_hash)}>
             Delete
           </Button>
         </Space>
@@ -103,7 +109,7 @@ export function TableViewSAST() {
       className={tableClassName}
       columns={columns}
       dataSource={data}
-      rowKey={(record) => record.id.toString()}
+      rowKey={(record) => record.file_hash}
     />
   );
 }
