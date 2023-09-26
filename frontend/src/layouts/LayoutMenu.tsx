@@ -31,15 +31,15 @@ export default function LayoutMenu({ children }: LayoutMenuProps) {
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Sider trigger={null} collapsible collapsed={collapsed} style={{ 
-                  background: theme === 'dark' ? '#121920' : '#7289da',
-                  color: theme === 'dark' ? '#fff' : '#000',
-                }}>
+      <Sider trigger={null} collapsible collapsed={collapsed} style={{
+        background: theme === 'dark' ? '#121920' : '#7289da',
+        color: theme === 'dark' ? '#fff' : '#000',
+      }}>
         <div style={{ display: 'flex', alignItems: 'center', height: '64px', padding: '0 16px' }}>
           <img src={logo} alt="Logo" style={{ width: '32px', height: '32px' }} />
         </div>
         <Menu
-          style={{ 
+          style={{
             background: theme === 'dark' ? '#121920' : '#7289da',
             color: theme === 'dark' ? '#fff' : '#000',
           }}
@@ -70,39 +70,39 @@ export default function LayoutMenu({ children }: LayoutMenuProps) {
         />
       </Sider>
       <Layout className="site-layout" style={{ maxHeight: 'auto', overflow: 'auto', background: theme === 'dark' ? '#001529' : '#99aab5' }}>
-        <Header style={{ 
-                  padding: 0,
-                  background: theme === 'dark' ? '#121920' : '#7289da',
-                  color: theme === 'dark' ? '#fff' : '#000',
-                }}>
+        <Header style={{
+          padding: 0,
+          background: theme === 'dark' ? '#121920' : '#7289da',
+          color: theme === 'dark' ? '#fff' : '#000',
+        }}>
           <Row gutter={16}>
             <Col className="gutter-row" span={6}>
               <div>
-              {React.createElement(collapsed ? MenuUnfoldOutlined : MenuFoldOutlined, {
-                className: 'trigger',
-                onClick: handleCollapseClick,
-              })}
+                {React.createElement(collapsed ? MenuUnfoldOutlined : MenuFoldOutlined, {
+                  className: 'trigger',
+                  onClick: handleCollapseClick,
+                })}
               </div>
             </Col>
             <Col className="gutter-row" span={6}>
               <ScanProgress />
             </Col>
             <Col className="gutter-row" span={6}>
-              <Marquee pauseOnHover style={{ 
+              <Marquee pauseOnHover style={{
                 background: theme === 'dark' ? '#121920' : '#7289da',
                 color: theme === 'dark' ? '#fff' : '#000',
-                }}>
-                  (ﾉ◕ヮ◕)ﾉ*:･ﾟ✧__EAT__(„• ֊ •„)__SLEEP__°˖✧◝(⁰▿⁰)◜✧˖°__HACK__( ◕▿◕ )
+              }}>
+                (ﾉ◕ヮ◕)ﾉ*:･ﾟ✧__EAT__(„• ֊ •„)__SLEEP__°˖✧◝(⁰▿⁰)◜✧˖°__HACK__( ◕▿◕ )
               </Marquee>
             </Col>
             <Col className="gutter-row" span={6}>
               <div>
-              <Switch
-                checked={theme === 'dark'}
-                onChange={toggleTheme}
-                checkedChildren="Dark"
-                unCheckedChildren="Light"
-              />
+                <Switch
+                  checked={theme === 'dark'}
+                  onChange={toggleTheme}
+                  checkedChildren="Dark"
+                  unCheckedChildren="Light"
+                />
               </div>
             </Col>
           </Row>
