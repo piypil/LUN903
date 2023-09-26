@@ -26,8 +26,8 @@ This project is a set of tools for securing web applications. The project includ
 
 ## Installation on Ubuntu
 
-    $ git clone https://github.com/piypil/stiefmutterchen.git
-    $ cd stiefmutterchen
+    $ git clone https://github.com/piypil/LUN903.git
+    $ cd LUN903
     $ chmod +x install.sh
     $ ./install.sh
 
@@ -35,10 +35,10 @@ This project is a set of tools for securing web applications. The project includ
 
 ### Backend 
 
-    $ cd stiefmutterchen/lilie
+    $ cd LUN903/lilie
     $ python3 manage.py runserver
 
 ### Frontend
 
-    $ cd stiefmutterchen/frontend
+    $ cd LUN903/frontend
     $ npm start
