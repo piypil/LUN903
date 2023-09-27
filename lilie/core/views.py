@@ -29,12 +29,18 @@ progress = 0
 
 
 def get_last_uploaded_file_hash(cursor):
-    cursor.execute("SELECT file_hash FROM core_files ORDER BY file_hash DESC LIMIT 1;")
+    cursor.execute("SELECT file_hash FROM core_files ORDER BY uploaded_at DESC LIMIT 1;")
     return cursor.fetchone()[0]
 
 def get_file_data(cursor, file_hash):
     cursor.execute("SELECT file FROM core_files WHERE file_hash = %s", (file_hash,))
-    return cursor.fetchone()[0]
+    result = cursor.fetchone()
+    print(f"Result for file_hash {file_hash}: {result}")
+    if result:
+        return result[0]
+    else:
+        print(f"No data found for file_hash: {file_hash}")
+        return None
 
 def extract_zip_file(file_data, random_id):
     path = f"project_scann/{random_id}"

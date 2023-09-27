@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Typography, Row, Col, Descriptions, Tag } from 'antd';
+import { Typography, Row, Col, Descriptions, Tag, Tabs, Collapse, List, Card } from 'antd';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import CodeMirror from '@uiw/react-codemirror';
@@ -8,12 +8,13 @@ import { langs } from '@uiw/codemirror-extensions-langs';
 import LayoutMenu from '../layouts/LayoutMenu';
 import { Menu } from 'antd';
 import { AppstoreOutlined } from '@ant-design/icons';
-import { Card } from 'antd';
 import { useTheme } from '../components/ThemeContext';
 import { tokyoNight } from '@uiw/codemirror-theme-tokyo-night';
 import { githubLight } from '@uiw/codemirror-theme-github'
 
+const { Panel } = Collapse;
 const { Title } = Typography;
+const { TabPane } = Tabs;
 const API_BASE_URL = process.env.REACT_APP_API_URL;
 
 function getColor(priority: string) {
@@ -44,11 +45,115 @@ interface Vulnerability {
   };
 }
 
+interface VulnerabilitySCA {
+  name: string;
+  description: string;
+  severity: string;
+  cwes: string;
+  references: {
+    url: string;
+    name: string;
+    source: string;
+  }[];
+  cvssv3: {
+    scope: string;
+    version: string;
+    baseScore: string;
+    impactScore: string;
+
+  };
+  cvssAccessVector: string;
+}
+
+interface Package {
+  id: string;
+  url: string;
+  confidence: string;
+}
+
+interface Dependency {
+  md5: string;
+  sha1: string;
+  sha256: string;
+  fileName: string;
+  filePath: string;
+  isVirtual: boolean;
+  evidenceCollected: {
+    vendorEvidence: any[];
+    productEvidence: any[];
+    versionEvidence: any[];
+  };
+  packages?: Package[];
+  vulnerabilities?: VulnerabilitySCA[];
+
+}
+
+const DependencyCard: React.FC<{ dependency: Dependency }> = ({ dependency }) => {
+  if (!dependency.vulnerabilities || dependency.vulnerabilities.length === 0) {
+    return null;
+  }
+  return (
+    <Card style={{ marginBottom: 20 }}>
+      <strong>{dependency.packages?.[0]?.id}</strong>
+      <Collapse>
+        <Panel header="Просмотр уязвимостей" key="1">
+          <List
+            dataSource={dependency.vulnerabilities}
+            renderItem={(vulnerability: VulnerabilitySCA) => (
+              <List.Item>
+                <Descriptions column={1}>
+                  <Descriptions.Item label="Уязвимость">
+                    {vulnerability.name}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Описание">
+                    {vulnerability.description}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Критичность">
+                    <Tag color={getColor(vulnerability.severity)}>
+                      {vulnerability.severity}
+                    </Tag>
+                  </Descriptions.Item>
+                  <Descriptions.Item label="CWE">
+                    {vulnerability.cwes}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="CVSSv3">
+                    {vulnerability.cvssv3.baseScore}
+                  </Descriptions.Item>
+                </Descriptions>
+                <Collapse>
+                  <Panel header="Ссылки" key="2">
+                    {vulnerability.references && vulnerability.references.length > 0 ? (
+                      vulnerability.references.slice(0, 3).map((ref, index) => (
+                        <div key={index}>
+                          <a href={ref.url} target="_blank" rel="noopener noreferrer">
+                            {ref.name}
+                          </a>
+                        </div>
+                      ))
+                    ) : (
+                      <span>Ссылки отсутствуют</span>
+                    )}
+                  </Panel>
+                </Collapse>
+              </List.Item>
+            )}
+          />
+        </Panel>
+      </Collapse>
+    </Card>
+  );
+};
+
 const ProjectResultsPageSAST: React.FC = () => {
   const { fileHash } = useParams<{ fileHash: string }>();
   const [projectName, setProjectName] = useState<string>('');
+
   const [vulnerabilities, setVulnerabilities] = useState<Vulnerability[]>([]);
   const [selectedVulnerability, setSelectedVulnerability] = useState<Vulnerability | null>(null);
+
+  const [dependencies, setDependencies] = useState<Dependency[]>([]);
+  const [selectedDependency, setSelectedDependency] = useState<Dependency | null>(null);
+
   const [code, setCode] = useState<string>('');
   const codeContainerRef = useRef<HTMLDivElement>(null);
   const { theme } = useTheme();
@@ -70,12 +175,14 @@ const ProjectResultsPageSAST: React.FC = () => {
     Promise.all([
       axios.get(`${API_BASE_URL}/files/${fileHash}/`),
       axios.get(`${API_BASE_URL}/results/${fileHash}/`),
+      axios.get(`${API_BASE_URL}/results-sca/${fileHash}/`),
     ])
-      .then(([projectResponse, resultsResponse]) => {
+      .then(([projectResponse, resultsResponse, scaResponse]) => {
         const projectData = projectResponse.data;
         const resultsData = resultsResponse.data;
         setProjectName(projectData.name);
         setVulnerabilities(resultsData[0]?.result_data?.results || []);
+        setDependencies(scaResponse.data[0].result_data.dependencies);
       })
       .catch((error) => {
         console.error(error);
@@ -132,112 +239,127 @@ const ProjectResultsPageSAST: React.FC = () => {
   return (
     <div className={theme === 'dark' ? 'dark-theme' : ''}>
       <LayoutMenu>
-        <Title 
+        <Title
           level={2}
-          style={{             
+          style={{
             color: theme === 'dark' ? '#fff' : '#000'
           }}
         >{projectName}
         </Title>
-        <Row gutter={[16, 16]}>
-          <Col span={16}>
-          <div
-          className={`code-container ${theme}-theme`}
-          style={{ height: '100vh', overflowY: 'auto' }}
-          ref={codeContainerRef}
-        >
-          {selectedVulnerability && (
-            <CodeMirror
-              value={code}
-              theme={codeMirrorTheme}
-              extensions={codeMirrorExtensions}
-            />
-          )}
-        </div>
-          </Col>
-          <Col span={8}>
-            <Menu mode="inline" theme={theme} 
-            style={{ 
-              height: '50vh', 
-              overflowY: 'auto', 
-              background: theme === 'dark' ? '#191B26' : '#FFFFFF',
-              color: theme === 'dark' ? '#fff' : '#000', 
-            }} 
-            defaultOpenKeys={categories}>
-              {categories.map((category) => (
-                <Menu.SubMenu key={category} title={category} icon={<AppstoreOutlined />}>
-                  {vulnerabilities
-                    .filter((vuln) => vuln.test_name === category)
-                    .map((vuln) => (
-                      <Menu.Item onClick={() => handleRowClick(vuln)}>
-                        {shortenPath(vuln.filename)}
-                      </Menu.Item>
-                    ))}
-                </Menu.SubMenu>
-              ))}
-            </Menu>
-            {selectedVulnerability && (
-              <Card title={<span style={{ color: theme === 'dark' ? '#fff' : '#000' }}>{selectedVulnerability.test_name}</span>}
-              bodyStyle={{
-                backgroundColor: theme === 'dark' ? '#191B26' : '#FFFFFF',
-                padding: '20px',
-                fontSize: '16px',
-              }}
-              style={{ 
-                width: '100%', marginTop: 10,             
-                background: theme === 'dark' ? '#191B26' : '#ffffff',
-                color: theme === 'dark' ? '#fff' : '#000',}} 
-                className={`${theme}-theme`}>                
-              <p>{selectedVulnerability.issue_text}</p>
-                <Descriptions
-                   contentStyle={{
-                    color: 'red',
-                    fontWeight: 'bold',
+        <Tabs defaultActiveKey="1">
+          <TabPane tab="SAST" key="1">
+            <Row gutter={[16, 16]}>
+              <Col span={16}>
+                <div
+                  className={`code-container ${theme}-theme`}
+                  style={{ height: '100vh', overflowY: 'auto' }}
+                  ref={codeContainerRef}
+                >
+                  {selectedVulnerability && (
+                    <CodeMirror
+                      value={code}
+                      theme={codeMirrorTheme}
+                      extensions={codeMirrorExtensions}
+                    />
+                  )}
+                </div>
+              </Col>
+              <Col span={8}>
+                <Menu mode="inline" theme={theme}
+                  style={{
+                    height: '50vh',
+                    overflowY: 'auto',
+                    background: theme === 'dark' ? '#191B26' : '#FFFFFF',
+                    color: theme === 'dark' ? '#fff' : '#000',
                   }}
-                  bordered
-                  column={1}
-                 >
-                  <Descriptions.Item label="CWE"              
-                  style={{            
-                    padding: '10px',
-                    fontSize: '14px',
-                    borderLeft: '3px solid #ff5733',
-                    backgroundColor: theme === 'dark' ? '#121920' : '#FFFFFF',
-                    color: theme === 'dark' ? '#fff' : '#000',}}>
-                    <a href={selectedVulnerability.issue_cwe.link} target="_blank" rel="noopener noreferrer">
-                      {selectedVulnerability.issue_cwe.id}
-                    </a>
-                  </Descriptions.Item>
-                  <Descriptions.Item label="Severity"
-                  style={{             
-                    padding: '10px',
-                    fontSize: '14px',
-                    borderLeft: '3px solid #ff5733',
-                    backgroundColor: theme === 'dark' ? '#121920' : '#FFFFFF',
-                    color: theme === 'dark' ? '#fff' : '#000',}}>
-                    <Tag color={getColor(selectedVulnerability.issue_severity)}>
-                      {selectedVulnerability.issue_severity}
-                    </Tag>
-                  </Descriptions.Item>
-                  <Descriptions.Item label="Confidence"
-                  style={{             
-                    padding: '10px',
-                    fontSize: '14px',
-                    borderLeft: '3px solid #ff5733',
-                    backgroundColor: theme === 'dark' ? '#121920' : '#FFFFFF',
-                    color: theme === 'dark' ? '#fff' : '#000',}}>
-                    <Tag color={getColor(selectedVulnerability.issue_confidence)}>
-                      {selectedVulnerability.issue_confidence}
-                    </Tag>
-                  </Descriptions.Item>
-                </Descriptions>
-              </Card>
-            )}
-          </Col>
-        </Row>
+                  defaultOpenKeys={categories}>
+                  {categories.map((category) => (
+                    <Menu.SubMenu key={category} title={category} icon={<AppstoreOutlined />}>
+                      {vulnerabilities
+                        .filter((vuln) => vuln.test_name === category)
+                        .map((vuln) => (
+                          <Menu.Item onClick={() => handleRowClick(vuln)}>
+                            {shortenPath(vuln.filename)}
+                          </Menu.Item>
+                        ))}
+                    </Menu.SubMenu>
+                  ))}
+                </Menu>
+                {selectedVulnerability && (
+                  <Card title={<span style={{ color: theme === 'dark' ? '#fff' : '#000' }}>{selectedVulnerability.test_name}</span>}
+                    bodyStyle={{
+                      backgroundColor: theme === 'dark' ? '#191B26' : '#FFFFFF',
+                      padding: '20px',
+                      fontSize: '16px',
+                    }}
+                    style={{
+                      width: '100%', marginTop: 10,
+                      background: theme === 'dark' ? '#191B26' : '#ffffff',
+                      color: theme === 'dark' ? '#fff' : '#000',
+                    }}
+                    className={`${theme}-theme`}>
+                    <p>{selectedVulnerability.issue_text}</p>
+                    <Descriptions
+                      contentStyle={{
+                        color: 'red',
+                        fontWeight: 'bold',
+                      }}
+                      bordered
+                      column={1}
+                    >
+                      <Descriptions.Item label="CWE"
+                        style={{
+                          padding: '10px',
+                          fontSize: '14px',
+                          borderLeft: '3px solid #ff5733',
+                          backgroundColor: theme === 'dark' ? '#121920' : '#FFFFFF',
+                          color: theme === 'dark' ? '#fff' : '#000',
+                        }}>
+                        <a href={selectedVulnerability.issue_cwe.link} target="_blank" rel="noopener noreferrer">
+                          {selectedVulnerability.issue_cwe.id}
+                        </a>
+                      </Descriptions.Item>
+                      <Descriptions.Item label="Severity"
+                        style={{
+                          padding: '10px',
+                          fontSize: '14px',
+                          borderLeft: '3px solid #ff5733',
+                          backgroundColor: theme === 'dark' ? '#121920' : '#FFFFFF',
+                          color: theme === 'dark' ? '#fff' : '#000',
+                        }}>
+                        <Tag color={getColor(selectedVulnerability.issue_severity)}>
+                          {selectedVulnerability.issue_severity}
+                        </Tag>
+                      </Descriptions.Item>
+                      <Descriptions.Item label="Confidence"
+                        style={{
+                          padding: '10px',
+                          fontSize: '14px',
+                          borderLeft: '3px solid #ff5733',
+                          backgroundColor: theme === 'dark' ? '#121920' : '#FFFFFF',
+                          color: theme === 'dark' ? '#fff' : '#000',
+                        }}>
+                        <Tag color={getColor(selectedVulnerability.issue_confidence)}>
+                          {selectedVulnerability.issue_confidence}
+                        </Tag>
+                      </Descriptions.Item>
+                    </Descriptions>
+                  </Card>
+                )}
+              </Col>
+            </Row>
+          </TabPane>
+          <TabPane tab="SCA" key="2">
+            <div>
+              {dependencies.map((dependency) => (
+                <DependencyCard key={dependency.fileName} dependency={dependency} />
+              ))}
+            </div>
+          </TabPane>
+        </Tabs>
       </LayoutMenu>
     </div>
-  );   
+  );
 };
 
 export default ProjectResultsPageSAST;
