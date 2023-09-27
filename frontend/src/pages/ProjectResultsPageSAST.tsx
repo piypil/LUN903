@@ -50,29 +50,51 @@ interface VulnerabilitySCA {
   description: string;
   severity: string;
   cwes: string;
-  references: string[];
+  references: {
+    url: string;
+    name: string;
+    source: string;
+  }[];
   cvssv3: {
     scope: string;
     version: string;
     baseScore: string;
     impactScore: string;
-    
+
   };
   cvssAccessVector: string;
 }
 
+interface Package {
+  id: string;
+  url: string;
+  confidence: string;
+}
+
 interface Dependency {
-  fileName: string;
-  filePath: string;
   md5: string;
   sha1: string;
-  vulnerabilities: VulnerabilitySCA[];
+  sha256: string;
+  fileName: string;
+  filePath: string;
+  isVirtual: boolean;
+  evidenceCollected: {
+    vendorEvidence: any[];
+    productEvidence: any[];
+    versionEvidence: any[];
+  };
+  packages?: Package[];
+  vulnerabilities?: VulnerabilitySCA[];
+
 }
 
 const DependencyCard: React.FC<{ dependency: Dependency }> = ({ dependency }) => {
+  if (!dependency.vulnerabilities || dependency.vulnerabilities.length === 0) {
+    return null;
+  }
   return (
     <Card style={{ marginBottom: 20 }}>
-      <strong>{dependency.fileName}</strong>
+      <strong>{dependency.packages?.[0]?.id}</strong>
       <Collapse>
         <Panel header="Просмотр уязвимостей" key="1">
           <List
@@ -97,18 +119,22 @@ const DependencyCard: React.FC<{ dependency: Dependency }> = ({ dependency }) =>
                   <Descriptions.Item label="CVSSv3">
                     {vulnerability.cvssv3.baseScore}
                   </Descriptions.Item>
-                  <Descriptions.Item label="Ссылки">
+                </Descriptions>
+                <Collapse>
+                  <Panel header="Ссылки" key="2">
                     {vulnerability.references && vulnerability.references.length > 0 ? (
-                      vulnerability.references.map((ref, index) => (
-                        <a key={index} href={ref} target="_blank" rel="noopener noreferrer">
-                          Источник {index + 1}
-                        </a>
+                      vulnerability.references.slice(0, 3).map((ref, index) => (
+                        <div key={index}>
+                          <a href={ref.url} target="_blank" rel="noopener noreferrer">
+                            {ref.name}
+                          </a>
+                        </div>
                       ))
                     ) : (
                       <span>Ссылки отсутствуют</span>
                     )}
-                  </Descriptions.Item>
-                </Descriptions>
+                  </Panel>
+                </Collapse>
               </List.Item>
             )}
           />
