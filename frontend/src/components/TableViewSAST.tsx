@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Space, Table, Spin, Modal, Button } from 'antd';
-import { ExclamationCircleOutlined } from '@ant-design/icons';
+import { Space, Table, Spin, Modal, Button, notification } from 'antd';
+import { ExclamationCircleOutlined, DownloadOutlined, DeleteOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
@@ -23,14 +23,22 @@ export function TableViewSAST() {
   const [loading, setLoading] = useState<boolean>(true);
   const { theme } = useTheme();
 
-  const deleteRecord = (file_hash: string) => {
+  const handleError = (message: string) => {
+    notification.error({
+      message: "Error",
+      description: message
+    });
+  };
+
+  const handleDelete = (file_hash: string) => {
     axios
       .delete(`${API_BASE_URL}/files/${file_hash}/`)
-      .then((response) => {
+      .then(() => {
         setData(data.filter((record) => record.file_hash !== file_hash));
       })
       .catch((error) => {
-        console.log('Error deleting record:', error);
+        handleError('Error deleting record.');
+        console.error('Error deleting record:', error);
       });
   }
 
@@ -39,11 +47,8 @@ export function TableViewSAST() {
       title: 'Are you sure delete this record?',
       icon: <ExclamationCircleOutlined />,
       onOk() {
-        deleteRecord(file_hash);
-      },
-      onCancel() {
-        console.log('Cancel');
-      },
+        handleDelete(file_hash);
+      }
     });
   }
 
@@ -75,10 +80,10 @@ export function TableViewSAST() {
       render: (_, record) => (
         <Space size="middle">
           <a href={record.file} target="_blank" rel="noopener noreferrer">
-            Download
+            <DownloadOutlined /> Download
           </a>
           <Button danger onClick={() => showDeleteConfirm(record.file_hash)}>
-            Delete
+            <DeleteOutlined /> Delete
           </Button>
         </Space>
       ),
@@ -93,7 +98,8 @@ export function TableViewSAST() {
         setLoading(false);
       })
       .catch((error) => {
-        console.log(error);
+        handleError('Error fetching data.');
+        console.error(error);
         setLoading(false);
       });
   }, []);
@@ -101,17 +107,23 @@ export function TableViewSAST() {
   const tableClassName = theme === 'dark' ? 'dark-theme' : '';
 
   if (loading) {
-    return <Spin size="large" />;
+    return (
+      <div style={{ textAlign: 'center', marginTop: '5rem' }}>
+        <Spin size="large" />
+      </div>
+    );
   }
 
   return (
-    <Table
-      className={tableClassName}
-      columns={columns}
-      dataSource={data}
-      rowKey={(record) => record.file_hash}
-    />
-  );
+    <div style={{ padding: '1rem' }}>
+      <Table
+        className={tableClassName}
+        columns={columns}
+        dataSource={data}
+        rowKey={(record) => record.file_hash}
+      />
+    </div>
+  )
 }
 
 export default TableViewSAST;
