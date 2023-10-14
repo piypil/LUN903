@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { List, Typography, Space, Tag } from 'antd';
 import { ClockCircleOutlined, FileOutlined, CodeOutlined } from '@ant-design/icons';
+import VulnerabilitySummary from './VulnerabilitySummary';
+import SCAVulnerabilitySummary from './SCAVulnerabilitySummary';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL;
 
@@ -26,16 +28,27 @@ export const RecentScans = () => {
 
   return (
     <List
-      dataSource={recentScans}
+      dataSource={recentScans.slice().reverse()}
       renderItem={(item: Scan) => (
         <List.Item>
           <Space direction="vertical" style={{ width: '100%' }}>
-            <Typography.Text strong><FileOutlined /> {item.name}</Typography.Text>
-            <Typography.Text type="secondary"><ClockCircleOutlined /> {new Date(item.uploaded_at).toLocaleDateString()} | {new Date(item.uploaded_at).toLocaleTimeString()}</Typography.Text>
-            <Tag icon={<CodeOutlined />} color="blue">{item.file_hash}</Tag>
+            <Space direction="vertical" align="center" style={{ width: '100%' }}>
+              <Typography.Text strong><FileOutlined /> {item.name}</Typography.Text>
+              <Typography.Text type="secondary"><ClockCircleOutlined /> {new Date(item.uploaded_at).toLocaleDateString()} | {new Date(item.uploaded_at).toLocaleTimeString()}</Typography.Text>
+              <Tag icon={<CodeOutlined />} color="blue">{item.file_hash}</Tag>
+            </Space>
+            <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+              <div style={{ width: '48%' }}>
+                <VulnerabilitySummary fileHash={item.file_hash} />
+              </div>
+              <div style={{ width: '48%' }}>
+                <SCAVulnerabilitySummary fileHash={item.file_hash} />
+              </div>
+            </div>
           </Space>
         </List.Item>
       )}
     />
   );
-};
+
+}

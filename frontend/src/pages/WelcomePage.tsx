@@ -28,8 +28,8 @@ export function WelcomePage() {
 
   return (
     <LayoutMenu>
-      <Row gutter={{ xs: 2, sm: 16, md: 24, lg: 32 }}>
-        <Col className="gutter-row" span={12}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: 'auto auto', gap: '16px' }}>
+        <div>
           <Card style={cardStyle}>
             <AlertMessage showSuccessMessage={showSuccessMessage} />
             <Title level={5} style={titleStyle}>Запуск SAST/SCA</Title>
@@ -37,20 +37,18 @@ export function WelcomePage() {
             <Title level={5} style={titleStyle}>Запуск DAST</Title>
             <ScanDAST />
           </Card>
-        </Col>
-        <Col className="gutter-row" span={12}>
           <Card style={cardStyle}>
             <Title level={5} style={titleStyle}>Руководства</Title>
             <div style={{ color: textColor }}>col-6</div>
           </Card>
-        </Col>
-        <Col span={12}>
+        </div>
+        <div>
           <Card style={cardStyle}>
             <Title level={5} style={titleStyle}>Последние</Title>
             <RecentScans />
           </Card>
-        </Col>
-      </Row>
+        </div>
+      </div>
     </LayoutMenu>
   );
 };

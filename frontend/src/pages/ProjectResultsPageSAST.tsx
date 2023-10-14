@@ -21,10 +21,18 @@ function getColor(priority: string) {
   switch (priority) {
     case 'LOW':
       return 'blue';
+    case 'low':
+      return 'blue';
     case 'MEDIUM':
       return 'orange';
     case 'HIGH':
       return 'red';
+    case 'high':
+      return 'red';
+    case 'critical':
+      return 'black';
+    case 'moderate':
+      return 'green';
     default:
       return 'default';
   }
@@ -117,7 +125,7 @@ const DependencyCard: React.FC<{ dependency: Dependency }> = ({ dependency }) =>
                     {vulnerability.cwes}
                   </Descriptions.Item>
                   <Descriptions.Item label="CVSSv3">
-                    {vulnerability.cvssv3.baseScore}
+                    {vulnerability.cvssv3 ? vulnerability.cvssv3.baseScore : 'N/A'}
                   </Descriptions.Item>
                 </Descriptions>
                 <Collapse>
