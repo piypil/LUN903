@@ -14,6 +14,7 @@ import logo from '../assets/images/logo512.png';
 import Marquee from 'react-fast-marquee';
 import ScanProgress from '../components/ScanProgress';
 import { useTheme } from '../components/ThemeContext';
+import { Alert } from 'antd';
 
 const { Header, Sider, Content } = Layout;
 
@@ -87,13 +88,18 @@ export default function LayoutMenu({ children }: LayoutMenuProps) {
             <Col className="gutter-row" span={6}>
               <ScanProgress />
             </Col>
-            <Col className="gutter-row" span={6}>
-              <Marquee pauseOnHover style={{
-                background: theme === 'dark' ? '#121920' : '#7289da',
-                color: theme === 'dark' ? '#fff' : '#000',
-              }}>
-                (ﾉ◕ヮ◕)ﾉ*:･ﾟ✧__EAT__(„• ֊ •„)__SLEEP__°˖✧◝(⁰▿⁰)◜✧˖°__HACK__( ◕▿◕ )
-              </Marquee>
+            <Col className="gutter-row" span={6} style={{ padding: '10px' }}>
+              <Alert
+              type="warning"
+                message={
+                  <Marquee pauseOnHover style={{
+                    background: theme === 'dark' ? '#121920' : '#FFCF48',
+                    color: theme === 'dark' ? '#FFCF48' : '#000',
+                  }}>
+                    (ﾉ◕ヮ◕)ﾉ*:･ﾟ✧__EAT__(„• ֊ •„)__SLEEP__°˖✧◝(⁰▿⁰)◜✧˖°__HACK__( ◕▿◕ )
+                  </Marquee>
+                }
+              />
             </Col>
             <Col className="gutter-row" span={6}>
               <div>

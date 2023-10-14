@@ -1,7 +1,7 @@
 import React from 'react';
 import { Col, Row, Typography, Card } from 'antd';
 import { UploadFile } from '../components/UploadFile';
-import { ScanURL } from '../components/ScanURL';
+import { ScanDAST } from '../components/ScanDAST';
 import { AlertMessage } from '../components/AlertMessage';
 import LayoutMenu from '../layouts/LayoutMenu';
 import { useTheme } from '../components/ThemeContext';
@@ -32,10 +32,10 @@ export function WelcomePage() {
         <Col className="gutter-row" span={12}>
           <Card style={cardStyle}>
             <AlertMessage showSuccessMessage={showSuccessMessage} />
-            <Title level={5} style={titleStyle}>Запуск SAST</Title>
+            <Title level={5} style={titleStyle}>Запуск SAST/SCA</Title>
             <UploadFile setShowSuccessMessage={setShowSuccessMessage} />
             <Title level={5} style={titleStyle}>Запуск DAST</Title>
-            <ScanURL />
+            <ScanDAST />
           </Card>
         </Col>
         <Col className="gutter-row" span={12}>
