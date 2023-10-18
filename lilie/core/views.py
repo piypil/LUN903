@@ -5,6 +5,7 @@ import config
 import json
 import multiprocessing
 import logging
+import docker
 
 from rest_framework.decorators import api_view
 from rest_framework import viewsets, generics
@@ -179,18 +180,26 @@ class CodeAPIView(APIView):
 def scan_url(request):
     url = request.data.get('url')
     projectName = request.data.get('projectName')
-    zap_address = config.ZAP_HOST
-    zap_port = config.ZAP_PORT
-    api_key = config.ZAP_KEY
 
     if url:
-        scanner = scanner_zap.OWASPZAPScanner(zap_address, zap_port, api_key)
-        scanner.start_scan(url)
+        # Создаем новый контейнер ZAP
+        client = docker.from_env()
+        config_path = './zap_configs'
 
-        project = ScannedProject(url=url, project_name=projectName)
+        container = client.containers.run(
+            'softwaresecurityproject/zap-stable',
+            'bash -c "zap.sh -cmd -addonupdate; zap.sh -cmd -autorun /zap/wrk/zap.yaml"',
+            detach=True,
+            volumes={
+                config_path: {'bind': '/zap/wrk/', 'mode': 'rw'}
+            }
+        )
+
+        # Сохраняем информацию о проекте и контейнере в базе данных
+        project = ScannedProject(url=url, project_name=projectName, container_id=container.id)
         project.save()
 
-        return Response({'message': f'Scan started successfully for URL: {url}'})
+        return Response({'message': f'Scan started successfully for URL: {url}. Container ID: {container.id}'})
     else:
         return Response({'error': 'URL is required.'}, status=400)
 

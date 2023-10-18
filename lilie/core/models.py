@@ -2,6 +2,7 @@ from django.db import models
 import uuid
 
 class ScannedProject(models.Model):
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, primary_key=True)
     project_name = models.CharField(max_length=255, default='Project')
     url = models.URLField()
     scan_date = models.DateTimeField(auto_now_add=True)
