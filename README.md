@@ -24,21 +24,9 @@ This project is a set of tools for securing web applications. The project includ
 - **DAST:** OWASP ZAP (Zed Attack Proxy)
 - **SCA:** OWASP Dependency-Check
 
-## Installation on Ubuntu
-
-    $ git clone https://github.com/piypil/LUN903.git
-    $ cd LUN903
-    $ chmod +x install.sh
-    $ ./install.sh
-
 ## Running the project
 
-### Backend 
+    $ git clone https://github.com/piypil/LUN903.git
+    $ cd LUN903/docker
+    $ docker-compose up
 
-    $ cd LUN903/lilie
-    $ python3 manage.py runserver
-
-### Frontend
-
-    $ cd LUN903/frontend
-    $ npm start
