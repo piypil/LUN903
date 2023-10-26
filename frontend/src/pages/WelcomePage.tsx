@@ -1,5 +1,5 @@
 import React from 'react';
-import { Col, Row, Typography, Card } from 'antd';
+import { Typography, Card } from 'antd';
 import { UploadFile } from '../components/UploadFile';
 import { ScanDAST } from '../components/ScanDAST';
 import { AlertMessage } from '../components/AlertMessage';

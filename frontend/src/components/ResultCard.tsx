@@ -1,6 +1,6 @@
 // ResultCard.tsx
 import React, { useState } from 'react';
-import { Card, Tag, Button, Space, Modal } from 'antd';
+import { Card, Button, Space, Modal } from 'antd';
 import { Result, Vulnerability, UrlDetail} from '../types';
 
 interface ResultCardProps {

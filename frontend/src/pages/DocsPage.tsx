@@ -1,6 +1,6 @@
 import React from 'react'
 
-export function AboutPage() {
+export function DocsPage() {
   return (
     <div>что - то</div>
   )

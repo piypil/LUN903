@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { List, Typography, Space, Tag } from 'antd';
 import { ClockCircleOutlined, FileOutlined, CodeOutlined } from '@ant-design/icons';
 import VulnerabilitySummary from './VulnerabilitySummary';

@@ -160,7 +160,6 @@ const ProjectResultsPageSAST: React.FC = () => {
   const [selectedVulnerability, setSelectedVulnerability] = useState<Vulnerability | null>(null);
 
   const [dependencies, setDependencies] = useState<Dependency[]>([]);
-  const [selectedDependency, setSelectedDependency] = useState<Dependency | null>(null);
 
   const [code, setCode] = useState<string>('');
   const codeContainerRef = useRef<HTMLDivElement>(null);
