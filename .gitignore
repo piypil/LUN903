@@ -8,7 +8,6 @@ db.sqlite3
 media
 my_lilie
 models
-migrations
 uploads
 project_scann
 lun903_python
