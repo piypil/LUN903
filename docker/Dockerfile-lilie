@@ -1,4 +1,4 @@
-FROM --platform=arm64 python:3.11.5-alpine3.17
+FROM python:3.11.5-alpine3.17
 EXPOSE 8000
 WORKDIR /lilie
 COPY ./lilie /lilie
