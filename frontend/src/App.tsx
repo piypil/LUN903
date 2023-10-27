@@ -6,6 +6,7 @@ import DashbordPage from './pages/DashbordPage';
 import ProjectResultsPage from './pages/ProjectResultsPageSAST';
 import ProjectResultsPageDAST from './pages/ProjectResultsPageDAST';
 import LoginPage from './pages/LoginPage';
+import UserProfile from './pages/UserProfile';
 import { ConfigProvider } from 'antd';
 import { ThemeProvider } from './components/ThemeContext';
 import { TonConnectUIProvider } from '@tonconnect/ui-react';
@@ -28,6 +29,7 @@ function App() {
               <Routes>
                 <Route path='/' element={<WelcomePage />} />
                 <Route path='/about' element={<DocsPage />} />
+                <Route path='/profile' element={<UserProfile />} />
                 <Route path='/projects' element={<DashbordPage />} />
                 <Route path='/results/:fileHash' element={<ProjectResultsPage />} />
                 <Route path='/results-dast/:fileHash' element={<ProjectResultsPageDAST />} />

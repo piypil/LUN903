@@ -14,6 +14,7 @@ import logo from '../assets/images/logo512.png';
 import Marquee from 'react-fast-marquee';
 import ScanProgress from '../components/ScanProgress';
 import { useTheme } from '../components/ThemeContext';
+import { useTonAddress } from '@tonconnect/ui-react';
 import { Alert } from 'antd';
 
 const { Header, Sider, Content } = Layout;
@@ -25,6 +26,7 @@ interface LayoutMenuProps {
 export default function LayoutMenu({ children }: LayoutMenuProps) {
   const [collapsed, setCollapsed] = useState(false);
   const { theme, toggleTheme } = useTheme();
+  const address = useTonAddress();
 
   const handleCollapseClick = useCallback(() => {
     setCollapsed((prevState) => !prevState);
@@ -46,29 +48,17 @@ export default function LayoutMenu({ children }: LayoutMenuProps) {
           }}
           mode="inline"
           defaultSelectedKeys={['1']}
-          items={[
-            {
-              key: '1',
-              icon: <BugTwoTone />,
-              label: <Link to="/">Запуск</Link>,
-            },
-            {
-              key: '2',
-              icon: <FileSearchOutlined />,
-              label: <Link to="/projects">Проводник</Link>,
-            },
-            {
-              key: '3',
-              icon: <UserOutlined />,
-              label: 'Аккаунт',
-            },
-            {
-              key: '4',
-              icon: <SettingOutlined />,
-              label: 'Настройки',
-            },
-          ]}
-        />
+        >
+          <Menu.Item key="1" icon={<BugTwoTone />}>
+            <Link to="/">Запуск</Link>
+          </Menu.Item>
+          <Menu.Item key="2" icon={<FileSearchOutlined />}>
+            <Link to="/projects">Проводник</Link>
+          </Menu.Item>
+          <Menu.Item key="3" icon={<UserOutlined />}>
+            <Link to="/profile">{address ? address : 'Аккаунт'}</Link>
+          </Menu.Item>
+        </Menu>
       </Sider>
       <Layout className="site-layout" style={{ maxHeight: 'auto', overflow: 'auto', background: theme === 'dark' ? '#001529' : '#99aab5' }}>
         <Header style={{
