@@ -187,7 +187,7 @@ def scan_url(request):
     # Создаем директорию для проекта
     directory_path = os.path.join("project_scan", str(project.uuid))
     os.makedirs(directory_path, exist_ok=True)
-    print(directory_path)
+
     # Создаем и сохраняем конфигурационный файл ZAP
     parser = FullScanParserZAP(url, directory_path)
     parser.render_data()
