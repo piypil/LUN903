@@ -2,7 +2,7 @@
 docker-compose.yml
 Dockerfile
 /uploads
-/project_scann
+/project_scan
 __pycache__
 __init__.py
 

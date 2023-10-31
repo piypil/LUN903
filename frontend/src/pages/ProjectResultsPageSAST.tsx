@@ -233,7 +233,7 @@ const ProjectResultsPageSAST: React.FC = () => {
   };
 
   const shortenPath = (path: string): string => {
-    const marker = '/lilie/project_scann/';
+    const marker = '/lilie/project_scan/';
     const parts = path.split(marker);
     if (parts.length > 1) {
       const postMarkerPart = parts[1].split('/');
