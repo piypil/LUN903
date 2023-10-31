@@ -18,7 +18,7 @@ function App() {
             <Route path='/about' element={<AboutPage />} />
             <Route path='/projects' element={<DashbordPage />} />
             <Route path='/results/:fileHash' element={<ProjectResultsPage />} />
-            <Route path='/results-dast/:fileHash' element={<ProjectResultsPageDAST />} />
+            <Route path='/results-dast/:uuid' element={<ProjectResultsPageDAST />} />
           </Routes>
         </ConfigProvider>
       </BrowserRouter>

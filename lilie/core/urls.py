@@ -12,7 +12,7 @@ urlpatterns = [
     path('api/scan-progress/', get_scan_progress),
     path('api/code/', CodeAPIView.as_view(), name='code-api'),
     path('api/scan-url/', scan_url, name='scan_url'),
-    path('api/scanned-projects/', ScannedProjectListView.as_view(), name='scanned-projects-list'),
+    path('api/dast-projects/', ScannedProjectListView.as_view(), name='scanned-projects-list'),
     path('api/files/', FilesViewSet.as_view({'get': 'list', 'post': 'create'}), name='files-list-create'),
     path('api/files/<str:file_hash>/', FilesViewSet.as_view({'get': 'retrieve'}), name='file-detail-by-hash'),
 ]
