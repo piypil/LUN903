@@ -195,18 +195,28 @@ def scan_url(request):
     # Запускаем сканирование с помощью ZAP
     zap_scanner = ZapScan(directory_path)
     zap_scanner.scan_target_url()
+
+    # Чтение файла отчета
+    report_path = os.path.join(directory_path, "TargetProjectReport.json")
+    with open(report_path, 'r') as report_file:
+        scan_results = json.load(report_file)
+
+    # Сохранение результатов в базе данных
+    project.results = scan_results
+    project.save()
     
-    return Response({"message": "Scan started successfully!"}, status=200)
+    return JsonResponse({"message": "Scan completed and results saved."})
 
 
-class ResultsUrlAPIView(APIView):
-    def get(self, request, project_id):
+class ResultsAPIViewDAST(APIView):
+    def get(self, request, uuid):
         try:
-            project = ScannedProject.objects.get(id=project_id)
+            project = ScannedProject.objects.get(uuid=uuid)
             results = project.results
             return Response({'results': results})
         except ScannedProject.DoesNotExist:
             return Response({'error': 'Project not found'}, status=404)
+
 
 
 class ScannedProjectListView(generics.ListAPIView):
