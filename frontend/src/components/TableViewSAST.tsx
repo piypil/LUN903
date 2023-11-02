@@ -87,8 +87,8 @@ export function TableViewSAST() {
           </Button>
         </Space>
       ),
-    },
-  ];
+      },
+    ];
 
   useEffect(() => {
     axios

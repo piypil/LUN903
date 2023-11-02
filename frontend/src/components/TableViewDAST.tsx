@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Space, Table, Spin, notification } from 'antd';
-import { ExclamationCircleOutlined, LinkOutlined } from '@ant-design/icons';
+import { Space, Table, Spin, notification, Button } from 'antd';
+import { ExclamationCircleOutlined, DownloadOutlined, DeleteOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import axios from 'axios';
 import moment from 'moment';
@@ -29,10 +29,9 @@ export function TableViewDAST() {
     });
   };
 
-
   const columns: ColumnsType<DASTData> = [
     {
-      title: 'Project Name',
+      title: 'Project',
       dataIndex: 'project_name',
       key: 'project_name',
       render: (name, record) => (
@@ -40,6 +39,11 @@ export function TableViewDAST() {
           <Link to={`/results-dast/${record.uuid}`}>{name}</Link>
         </Space>
       ),
+    },
+    {
+      title: 'ID',
+      dataIndex: 'uuid',
+      key: 'uuid',
     },
     {
       title: 'URL',
@@ -52,6 +56,20 @@ export function TableViewDAST() {
       key: 'scan_date',
       render: (date) => moment(date).format('YYYY.MM.DD -> HH:mm'),
     },
+    {
+      title: 'Action',
+      key: 'action',
+      render: (_, record) => (
+        <Space size="middle">
+          <a target="_blank" rel="noopener noreferrer">
+            <DownloadOutlined /> Download
+          </a>
+          <Button>
+            <DeleteOutlined /> Delete
+          </Button>
+        </Space>
+      ),
+      },
   ];
 
   useEffect(() => {
