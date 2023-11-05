@@ -7,6 +7,8 @@ import { useTheme } from '../components/ThemeContext';
 import { Menu } from 'antd';
 import { BugOutlined } from '@ant-design/icons';
 import CodeMirror from '@uiw/react-codemirror';
+import { EditorView } from 'codemirror';
+import { EditorState } from '@codemirror/state';
 
 const { TabPane } = Tabs;
 const { SubMenu } = Menu;
@@ -170,42 +172,38 @@ const ProjectResultsPageDAST: React.FC = () => {
   return (
     <div className={theme === 'dark' ? 'dark-theme' : ''}>
       <LayoutMenu>
-        <Typography.Title level={2}>Test</Typography.Title>
         
-        <div>
-          <Row gutter={[0, 12]}>
-            {Object.entries(confidenceCounts).map(([confidence, count]) => (
-              <Col span={2} key={confidence}>
-                <Card
-                  hoverable
-                  style={{
-                    borderColor: getConfidenceColor(confidence),
-                    borderWidth: 1,
-                    width: '100%',
-                    borderTop: `2px solid ${getConfidenceColor(confidence)}`,
-                    backgroundColor: '#ffffff',
-                  }}
-                  onClick={() => handleConfidenceFilter(confidence)}
-                  title={<span style={{ fontSize: '14px' }}>{confidence.charAt(0).toUpperCase() + confidence.slice(1)}</span>}
-                  headStyle={{
-                    fontWeight: 'bold',
-                    borderBottom: '1px solid #d9d9d9',
-                  }}
-                  bodyStyle={{
-                    padding: '10px',
-                  }}
-                >
-                  <Typography.Text style={{ fontSize: '12px', fontWeight: 'bold', lineHeight: '14px' }}>{count}</Typography.Text>
-                </Card>
-              </Col>
-            ))}
-          </Row>
-        </div>
+        <Row gutter={[0, 12]}>
+          {Object.entries(confidenceCounts).map(([confidence, count]) => (
+            <Col span={2} key={confidence}>
+              <Card
+                hoverable
+                style={{
+                  borderColor: getConfidenceColor(confidence),
+                  borderWidth: 1,
+                  width: '100%',
+                  borderTop: `2px solid ${getConfidenceColor(confidence)}`,
+                  backgroundColor: '#ffffff',
+                }}
+                onClick={() => handleConfidenceFilter(confidence)}
+                headStyle={{
+                  fontWeight: 'bold',
+                  borderBottom: '1px solid #d9d9d9',
+                }}
+                bodyStyle={{
+                  padding: '10px',
+                }}
+              >
+                <Typography.Text style={{ fontSize: '12px', fontWeight: 'bold', lineHeight: '14px' }}>{count}</Typography.Text>
+              </Card>
+            </Col>
+          ))}
+        </Row>
 
-        <Row>
-          <Col span={12}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: 'auto auto', gap: '16px' }}>
+          <div>
             <Typography.Title level={3}>Results:</Typography.Title>
-            <Col span={14}>
+            <Col span={24}>
               <Menu
                 style={{ height: '100%', overflow: 'auto' }}
               >
@@ -245,15 +243,14 @@ const ProjectResultsPageDAST: React.FC = () => {
                 })}
               </Menu>
             </Col>
-          </Col>
+          </div>
+          <div>
+            <Col span={12}>
+              <Space direction="vertical">
+                <Typography.Title level={2}>
+                  {currentResult && data?.results.runs[0].tool.driver.rules.find(r => r.id === currentResult.ruleId)?.shortDescription.text}
+                </Typography.Title>
 
-          <Col span={12}>
-            <Space direction="vertical">
-              <Typography.Title level={2}>
-                {currentResult && data?.results.runs[0].tool.driver.rules.find(r => r.id === currentResult.ruleId)?.shortDescription.text}
-              </Typography.Title>
-
-              <Row gutter={[16, 16]}>
                 <Col span={24}>
                   <Descriptions title="URL" bordered>
                     <Descriptions.Item>
@@ -261,94 +258,104 @@ const ProjectResultsPageDAST: React.FC = () => {
                     </Descriptions.Item>
                   </Descriptions>
                 </Col>
-              </Row>
 
-              <Row gutter={[16, 16]}>
+
+
                 <Col span={24}>
                   <Typography.Paragraph>
                     <Typography.Text strong>Description:</Typography.Text> {currentResult && data?.results.runs[0].tool.driver.rules.find(r => r.id === currentResult.ruleId)?.fullDescription.text}
                   </Typography.Paragraph>
                 </Col>
-              </Row>
 
-              <Row gutter={[16, 16]}>
+
+
                 <Col span={24}>
                   <Typography.Paragraph>
                     <Typography.Text strong>Other Info:</Typography.Text> {currentResult?.message.text}
                   </Typography.Paragraph>
                 </Col>
-              </Row>
 
-              <Row gutter={[16, 16]}>
+
+
                 <Col span={24}>
                   <Typography.Paragraph>
                     <Typography.Text strong>Solution:</Typography.Text> {currentResult && data?.results.runs[0].tool.driver.rules.find(r => r.id === currentResult.ruleId)?.properties.solution?.text}
                   </Typography.Paragraph>
                 </Col>
-              </Row>
 
 
-              <div style={{ padding: '20px' }}>
-                <Tabs defaultActiveKey="request" type="card">
+                <div style={{ padding: '20px' }}>
+                  <Tabs defaultActiveKey="request" type="card">
 
-                  <TabPane tab="Web Request" key="request">
-                    <Descriptions bordered column={1}>
-                      <Descriptions.Item label="Method">
-                        <Typography.Text strong>{currentResult?.webRequest.method}</Typography.Text>
-                      </Descriptions.Item>
-                      <Descriptions.Item label="Headers">
-                        <CodeMirror
-                          value={JSON.stringify(currentResult?.webRequest.headers, null, 2)}
-                        />
-                      </Descriptions.Item>
-                    </Descriptions>
-                  </TabPane>
+                    <TabPane tab="Web Request" key="request">
+                      <Descriptions bordered column={1}>
+                        <Descriptions.Item label="Method">
+                          <Typography.Text strong>{currentResult?.webRequest.method}</Typography.Text>
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Headers">
+                          <CodeMirror
+                            value={JSON.stringify(currentResult?.webRequest.headers, null, 2)}
+                            height="200px"
+                            width="440px"
+                            extensions={[EditorView.editable.of(false), EditorState.readOnly.of(true)]}
+                          />
+                        </Descriptions.Item>
+                      </Descriptions>
+                    </TabPane>
 
-                  <TabPane tab="Web Request Body" key="requestBody">
-                    <Descriptions bordered column={1}>
-                      <Descriptions.Item label="Method">
-                        <Typography.Text strong>{currentResult?.webRequest.method}</Typography.Text>
-                      </Descriptions.Item>
-                      <Descriptions.Item label="Headers">
-                        <CodeMirror
-                          value={JSON.stringify(currentResult?.webRequest.body, null, 2)}
-                        />
-                      </Descriptions.Item>
-                    </Descriptions>
-                  </TabPane>
+                    <TabPane tab="Web Request Body" key="requestBody">
+                      <Descriptions bordered column={1}>
+                        <Descriptions.Item label="Method">
+                          <Typography.Text strong>{currentResult?.webRequest.method}</Typography.Text>
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Headers">
+                          <CodeMirror
+                            value={JSON.stringify(currentResult?.webRequest.body, null, 2)}
+                            height="200px"
+                            width="440px"
+                            extensions={[EditorView.editable.of(false), EditorState.readOnly.of(true)]}
+                          />
+                        </Descriptions.Item>
+                      </Descriptions>
+                    </TabPane>
 
-                  <TabPane tab="Web Response" key="response">
-                    <Descriptions bordered column={1}>
-                      <Descriptions.Item label="Status Code">
-                        <Typography.Text strong>{currentResult?.webResponse.statusCode}</Typography.Text>
-                      </Descriptions.Item>
-                      <Descriptions.Item label="Headers">
-                        <CodeMirror
-                          value={JSON.stringify(currentResult?.webResponse.headers, null, 2)}
-                        />
-                      </Descriptions.Item>
-                    </Descriptions>
-                  </TabPane>
+                    <TabPane tab="Web Response" key="response">
+                      <Descriptions bordered column={1}>
+                        <Descriptions.Item label="Status Code">
+                          <Typography.Text strong>{currentResult?.webResponse.statusCode}</Typography.Text>
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Headers">
+                          <CodeMirror
+                            value={JSON.stringify(currentResult?.webRequest.headers, null, 2)}
+                            height="200px"
+                            width="440px"
+                            extensions={[EditorView.editable.of(false), EditorState.readOnly.of(true)]}
+                          />
+                        </Descriptions.Item>
+                      </Descriptions>
+                    </TabPane>
 
-                  <TabPane tab="Web Response Body" key="responseBody">
-                    <Descriptions bordered column={1}>
-                      <Descriptions.Item label="Status Code">
-                        <Typography.Text strong>{currentResult?.webResponse.statusCode}</Typography.Text>
-                      </Descriptions.Item>
-                      <Descriptions.Item label="Headers">
-                        <CodeMirror
-                          value={JSON.stringify(currentResult?.webResponse.body, null, 2)}
-                        />
-                      </Descriptions.Item>
-                    </Descriptions>
-                  </TabPane>
-
-                </Tabs>
-              </div>
-            </Space>
-          </Col>
-
-        </Row>
+                    <TabPane tab="Web Response Body" key="responseBody">
+                      <Descriptions bordered column={1}>
+                        <Descriptions.Item label="Status Code">
+                          <Typography.Text strong>{currentResult?.webResponse.statusCode}</Typography.Text>
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Headers">
+                          <CodeMirror
+                            value={JSON.stringify(currentResult?.webResponse.body, null, 2)}
+                            height="200px"
+                            width="440px"
+                            extensions={[EditorView.editable.of(false), EditorState.readOnly.of(true)]}
+                          />
+                        </Descriptions.Item>
+                      </Descriptions>
+                    </TabPane>
+                  </Tabs>
+                </div>
+              </Space>
+            </Col>
+          </div>
+        </div>
       </LayoutMenu>
     </div>
   );
