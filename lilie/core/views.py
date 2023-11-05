@@ -18,9 +18,9 @@ from django.shortcuts import get_object_or_404
 
 from .models import Files, Results, ResultsSCA, ScannedProject
 from .serializer import FilesSerializer, ScannedProjectSerializer
-from zap import scanner_zap
 from tqdm import tqdm
-
+from .kamille.FullScanParserZAP import FullScanParserZAP
+from .kamille.ZapScan import ZapScan
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +43,7 @@ def get_file_data(cursor, file_hash):
         return None
 
 def extract_zip_file(file_data, random_id):
-    path = f"project_scann/{random_id}"
+    path = f"project_scan/{random_id}"
     os.makedirs(path, exist_ok=True)
     with open(f'uploads/{file_data}', 'rb') as file:
         with zipfile.ZipFile(file) as myzip:
@@ -166,7 +166,7 @@ class ResultsAPIViewSCA(APIView):
 class CodeAPIView(APIView):
     def get(self, request):
         file_path = request.GET.get('file_path', '')
-        file_full_path = os.path.join('project_scann/', file_path)
+        file_full_path = os.path.join('project_scan/', file_path)
         try:
             with open(file_full_path, 'r') as file:
                 code = file.read()
@@ -179,30 +179,44 @@ class CodeAPIView(APIView):
 def scan_url(request):
     url = request.data.get('url')
     projectName = request.data.get('projectName')
-    zap_address = config.ZAP_HOST
-    zap_port = config.ZAP_PORT
-    api_key = config.ZAP_KEY
 
-    if url:
-        scanner = scanner_zap.OWASPZAPScanner(zap_address, zap_port, api_key)
-        scanner.start_scan(url)
+    # Создаем запись в базе данных
+    project = ScannedProject(project_name=projectName, url=url)
+    project.save()
 
-        project = ScannedProject(url=url, project_name=projectName)
-        project.save()
+    # Создаем директорию для проекта
+    directory_path = os.path.join("project_scan", str(project.uuid))
+    os.makedirs(directory_path, exist_ok=True)
 
-        return Response({'message': f'Scan started successfully for URL: {url}'})
-    else:
-        return Response({'error': 'URL is required.'}, status=400)
+    # Создаем и сохраняем конфигурационный файл ZAP
+    parser = FullScanParserZAP(url, directory_path)
+    parser.render_data()
+
+    # Запускаем сканирование с помощью ZAP
+    zap_scanner = ZapScan(directory_path)
+    zap_scanner.scan_target_url()
+
+    # Чтение файла отчета
+    report_path = os.path.join(directory_path, "TargetProjectReport.json")
+    with open(report_path, 'r') as report_file:
+        scan_results = json.load(report_file)
+
+    # Сохранение результатов в базе данных
+    project.results = scan_results
+    project.save()
+    
+    return JsonResponse({"message": "Scan completed and results saved."})
 
 
-class ResultsUrlAPIView(APIView):
-    def get(self, request, project_id):
+class ResultsAPIViewDAST(APIView):
+    def get(self, request, uuid):
         try:
-            project = ScannedProject.objects.get(id=project_id)
+            project = ScannedProject.objects.get(uuid=uuid)
             results = project.results
             return Response({'results': results})
         except ScannedProject.DoesNotExist:
             return Response({'error': 'Project not found'}, status=404)
+
 
 
 class ScannedProjectListView(generics.ListAPIView):

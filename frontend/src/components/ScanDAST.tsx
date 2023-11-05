@@ -24,13 +24,18 @@ export function ScanDAST() {
         },
         body: JSON.stringify({ url, projectName }),
       });
-      const data = await response.json();
+      const textResponse = await response.text();
+      console.log("Raw server response:", textResponse);
+
+      const data = JSON.parse(textResponse);
       if (response.ok) {
         message.success(data.message || 'Scan started successfully!');
       } else {
+        console.error("Server Response:", data); 
         message.error(data.error || 'Error starting scan.');
       }
     } catch (error) {
+      console.error("Fetch Error:", error);
       message.error('Error starting scan.');
     }
   };
@@ -57,7 +62,7 @@ export function ScanDAST() {
           name="url"
           rules={[{ required: true, type: 'url', warningOnly: true }, { type: 'string', min: 6 }]}
         >
-          <Input placeholder="Input target" />
+          <Input placeholder="http://host.docker.internal:port" />
         </Form.Item>
         <Form.Item
           name="projectName"
@@ -83,7 +88,10 @@ export function ScanDAST() {
             </div>
           </Space>
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            <Button type="primary" htmlType="submit">
+            <Button
+              type="primary"
+              onClick={() => form.submit()}
+            >
               ПУСК
             </Button>
             <Button icon={<SettingOutlined />} onClick={toggleModal} style={{ marginLeft: '8px' }}></Button>

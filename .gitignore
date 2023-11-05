@@ -9,11 +9,11 @@ media
 my_lilie
 models
 uploads
-project_scann
+project_scan
 lun903_python
 
 # Environments 
-.env 
+.env
 .venv 
 env/ 
 venv/ 

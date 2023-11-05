@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     'core',
     'rest_framework',
     'corsheaders',
-    'zap',
 ]
 
 MIDDLEWARE = [

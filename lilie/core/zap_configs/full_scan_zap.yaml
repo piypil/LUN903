@@ -1,0 +1,87 @@
+---
+env:
+  contexts:
+  - name: "Default Context"
+    urls: []
+    includePaths: []
+    excludePaths: []
+    authentication:
+      parameters: {}
+      verification:
+        method: "response"
+        pollFrequency: 60
+        pollUnits: "requests"
+    sessionManagement:
+      method: "cookie"
+      parameters: {}
+    technology:
+      exclude: []
+  parameters:
+    failOnError: true
+    failOnWarning: false
+    progressToStdout: true
+  vars: {}
+jobs:
+- parameters:
+    scanOnlyInScope: true
+    enableTags: false
+    disableAllRules: false
+  rules: []
+  name: "passiveScan-config"
+  type: "passiveScan-config"
+- parameters: {}
+  name: "spider"
+  type: "spider"
+  tests:
+  - onFail: "INFO"
+    statistic: "automation.spider.urls.added"
+    site: ""
+    operator: ">="
+    value: 100
+    type: "stats"
+    name: "At least 100 URLs found"
+- parameters:
+    maxDuration: 60
+    maxCrawlDepth: 10
+    numberOfBrowsers: 16
+    inScopeOnly: true
+  name: "spiderAjax"
+  type: "spiderAjax"
+  tests:
+  - onFail: "INFO"
+    statistic: "spiderAjax.urls.added"
+    site: ""
+    operator: ">="
+    value: 100
+    type: "stats"
+    name: "At least 100 URLs found"
+- parameters: {}
+  name: "passiveScan-wait"
+  type: "passiveScan-wait"
+- parameters: {}
+  policyDefinition:
+    rules: []
+  name: "activeScan"
+  type: "activeScan"
+- parameters:
+    template: "sarif-json"
+    reportDir: "/Users/puchka"
+    reportFile: "test_report_name"
+    reportTitle: "ZAP Scanning Report"
+    reportDescription: ""
+    displayReport: false
+  risks:
+  - "info"
+  - "low"
+  - "medium"
+  - "high"
+  confidences:
+  - "falsepositive"
+  - "low"
+  - "medium"
+  - "high"
+  - "confirmed"
+  sites: []
+  name: "report"
+  type: "report"
+
