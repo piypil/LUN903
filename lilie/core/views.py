@@ -177,6 +177,8 @@ class CodeAPIView(APIView):
 
 @api_view(['POST'])
 def scan_url(request):
+    inside_docker = os.path.exists('/.dockerenv')
+
     url = request.data.get('url')
     projectName = request.data.get('projectName')
 
@@ -185,8 +187,12 @@ def scan_url(request):
     project.save()
 
     # Создаем директорию для проекта
-    directory_path = os.path.join("project_scan", str(project.uuid))
-    os.makedirs(directory_path, exist_ok=True)
+    if inside_docker:
+        directory_path = os.path.join("/lilie/project_scan", str(project.uuid))
+        os.makedirs(directory_path, exist_ok=True)
+    else:
+        directory_path = os.path.join("project_scan", str(project.uuid))
+        os.makedirs(directory_path, exist_ok=True)
 
     # Создаем и сохраняем конфигурационный файл ZAP
     parser = FullScanParserZAP(url, directory_path)

@@ -8,6 +8,9 @@ services:
     ports:
       - 8000:8000
     restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - shared-data:/lilie/project_scan
     depends_on:
       - app-db
     networks:
@@ -36,6 +39,11 @@ services:
     restart: unless-stopped
     networks:
       - localnet
+
+volumes:
+  shared-data:
+    driver: local
+
 networks:
   localnet:
     name: localnet
