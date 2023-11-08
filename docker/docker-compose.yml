@@ -1,48 +1,52 @@
-version: "3.5"
+version: "3.8"
+
 services:
+  nginx:
+    build:
+      context: ..
+      dockerfile: ./docker/Dockerfile-frontend
+    container_name: lun903-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ../nginx:/etc/nginx/conf.d
+      - static_volume:/static
+    depends_on:
+      - app-lilie-backend
+    networks:
+      - localnet
+
   app-lilie-backend:
     build:
       context: ..
       dockerfile: ./docker/Dockerfile-lilie
     container_name: lun903-lilie-backend
-    ports:
-      - 8000:8000
-    restart: unless-stopped
+    expose:
+      - "8000"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - shared-data:/lilie/project_scan
+      - shared-scan:/shared/project_scan
     depends_on:
       - app-db
     networks:
       - localnet
-  app-frontend:
-    build:
-      context: ..
-      dockerfile: ./docker/Dockerfile-frontend
-    container_name: lun903-frontend
-    ports:
-      - 3000:3000
-    restart: unless-stopped
-    depends_on:
-      - app-lilie-backend
-    networks:
-      - localnet
+
   app-db:
-    env_file:
-      - ../lilie/.env
     image: postgres:latest
     container_name: lun903-db
-    ports:
-      - 5432:5432
+    env_file:
+      - ../lilie/.env
     volumes:
       - ../scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
-    restart: unless-stopped
+      - postgres_data:/var/lib/postgresql/data
     networks:
       - localnet
 
 volumes:
-  shared-data:
+  shared-scan:
     driver: local
+  postgres_data:
+  static_volume:
 
 networks:
   localnet:

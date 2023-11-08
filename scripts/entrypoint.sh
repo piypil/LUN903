@@ -6,7 +6,7 @@ if [ "$POSTGRES_DB" = "lun903" ]
 then
     echo "Waiting for postgres..."
 
-    while ! nc -z $POSTGRES_HOST $POSTGRES_PORT; do
+    while ! nc -zv $POSTGRES_HOST $POSTGRES_PORT; do
       sleep 0.1
     done
 

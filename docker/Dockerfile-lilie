@@ -4,6 +4,7 @@ WORKDIR /lilie
 COPY ./lilie /lilie
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
+ENV DOCKER_CONTAINER_RUN True
 RUN apk add --no-cache openjdk11-jre unzip
 RUN pip3 install --no-cache-dir -r requirements.txt
 

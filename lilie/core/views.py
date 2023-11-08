@@ -177,7 +177,8 @@ class CodeAPIView(APIView):
 
 @api_view(['POST'])
 def scan_url(request):
-    inside_docker = os.path.exists('/.dockerenv')
+    # Для првоерки, запущенны ли в docker
+    DOCKER_CONTAINER_RUN = os.environ.get('DOCKER_CONTAINER_RUN', False)
 
     url = request.data.get('url')
     projectName = request.data.get('projectName')
@@ -187,8 +188,8 @@ def scan_url(request):
     project.save()
 
     # Создаем директорию для проекта
-    if inside_docker:
-        directory_path = os.path.join("/lilie/project_scan", str(project.uuid))
+    if DOCKER_CONTAINER_RUN is True:
+        directory_path = os.path.join("/shared/project_scan", str(project.uuid))
         os.makedirs(directory_path, exist_ok=True)
     else:
         directory_path = os.path.join("project_scan", str(project.uuid))
