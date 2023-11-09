@@ -177,8 +177,7 @@ class CodeAPIView(APIView):
 
 @api_view(['POST'])
 def scan_url(request):
-    # Для првоерки, запущенны ли в docker
-    DOCKER_CONTAINER_RUN = os.environ.get('DOCKER_CONTAINER_RUN', False)
+    DOCKER_CONTAINER_RUN = os.environ.get('DOCKER_CONTAINER_RUN', "False")
 
     url = request.data.get('url')
     projectName = request.data.get('projectName')
@@ -187,32 +186,33 @@ def scan_url(request):
     project = ScannedProject(project_name=projectName, url=url)
     project.save()
 
-    # Создаем директорию для проекта
-    if DOCKER_CONTAINER_RUN is True:
-        directory_path = os.path.join("/shared/project_scan", str(project.uuid))
-        os.makedirs(directory_path, exist_ok=True)
-    else:
-        directory_path = os.path.join("project_scan", str(project.uuid))
-        os.makedirs(directory_path, exist_ok=True)
+    # Определение пути к директории проекта
+    base_path = "/shared/project_scan" if DOCKER_CONTAINER_RUN.lower() == "true" else "project_scan"
+    directory_path = os.path.join(base_path, str(project.uuid))
+    os.makedirs(directory_path, exist_ok=True)
 
     # Создаем и сохраняем конфигурационный файл ZAP
     parser = FullScanParserZAP(url, directory_path)
     parser.render_data()
 
     # Запускаем сканирование с помощью ZAP
-    zap_scanner = ZapScan(directory_path)
+    zap_scanner = ZapScan(directory_path, str(project.uuid))
     zap_scanner.scan_target_url()
 
-    # Чтение файла отчета
-    report_path = os.path.join(directory_path, "TargetProjectReport.json")
-    with open(report_path, 'r') as report_file:
-        scan_results = json.load(report_file)
+    try:
+        # Чтение файла отчета
+        report_path = os.path.join(directory_path, "TargetProjectReport.json")
+        with open(report_path, 'r') as report_file:
+            scan_results = json.load(report_file)
 
-    # Сохранение результатов в базе данных
-    project.results = scan_results
-    project.save()
-    
-    return JsonResponse({"message": "Scan completed and results saved."})
+        # Сохранение результатов в базе данных
+        project.results = scan_results
+        project.save()
+        message = "Scan completed and results saved."
+    except FileNotFoundError:
+        message = "Report file not found. Scan may have failed or not completed."
+
+    return Response({"message": message})
 
 
 class ResultsAPIViewDAST(APIView):
