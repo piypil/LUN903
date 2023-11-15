@@ -1,6 +1,5 @@
 FROM ubuntu:22.04 AS codeql_base
 ENV DEBIAN_FRONTEND=noninteractive
-
 # Set up the enviroment
 RUN apt-get update && \
     apt-get upgrade -y && \
