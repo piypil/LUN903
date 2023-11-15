@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Список поддерживаемых языков и их расширений
+# List of supported languages and their extensions
 declare -A language_extensions
 language_extensions[python]=".py"
 language_extensions[javascript]=".js .jsx"
@@ -11,12 +11,12 @@ language_extensions[go]=".go"
 language_extensions[typescript]=".ts .tsx"
 language_extensions[c]=".c .h"
 
-# Функция для определения языка программирования
+# Function for defining the programming language
 determine_language() {
     local src_dir=$1
     declare -A file_count
 
-    # Считаем файлы для каждого языка
+    # Count the files for each language
     for lang in "${!language_extensions[@]}"; do
         for ext in ${language_extensions[$lang]}; do
             count=$(find "$src_dir" -type f -name "*$ext" | wc -l)
@@ -24,7 +24,7 @@ determine_language() {
         done
     done
 
-    # Определяем язык с наибольшим количеством файлов
+    # Identify the language with the largest number of files
     local max_count=0
     local detected_lang=""
     for lang in "${!file_count[@]}"; do
@@ -35,14 +35,13 @@ determine_language() {
     done
 
     if [[ -z $detected_lang ]]; then
-        echo "Не удалось определить язык программирования"
+        echo "Programming language could not be determined"
         return 1
     else
         echo $detected_lang
     fi
 }
 
-# Функции для вывода сообщений
 print_green() {
     echo -e "${GREEN}${1}${RESET}"
 }
@@ -51,7 +50,6 @@ print_red() {
     echo -e "${RED}${1}${RESET}"
 }
 
-# Настройка переменных
 SRC=/opt/src
 OUTPUT=$SRC
 RED="\033[31m"
@@ -64,7 +62,7 @@ if [ ! -d "$SRC" ]; then
     exit 3
 fi
 
-# Определяем язык программирования
+# Define the programming language
 LANGUAGE=$(determine_language "$SRC")
 if [[ $? -ne 0 ]]; then
     print_red "[!] Can not auto detect language. Please check the source code."

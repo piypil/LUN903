@@ -1,3 +1,8 @@
+
+# Based on 
+ - https://github.com/codeql-agent-project/codeql-agent-docker
+ - https://github.com/microsoft/codeql-container
+
 ## Build
 ```bash
 docker build -t codeql-container .

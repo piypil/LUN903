@@ -25,13 +25,10 @@ class CodeQLScan:
 
     def scan_target_path(self):
         client = docker.from_env()
-        print("Зашли в CodeQL")
         if os.environ.get('DOCKER_CONTAINER_RUN', "False").lower() == "true":
-            print("Docker path")
             volumes_config = {
                 'docker_shared-scan': {'bind': '/opt/src/', 'mode': 'rw'}}
         else:
-            print("Normal Path")
             volumes_config = {
                 self.project_directory: {'bind': '/opt/src/', 'mode': 'rw'}
                 }
@@ -42,13 +39,10 @@ class CodeQLScan:
                 detach=True
             )
             self.container_id = container.id
-            print("Запустили")
             container.wait()
         except docker.errors.ContainerError as e:
             print(f"Ошибка запуска контейнера: {e}")
         except docker.errors.ImageNotFound:
             print("Образ Docker не найден.")
-        except docker.errors.APIError as e:
-            print(f"Ошибка Docker API: {e}")
 
         self.stop_and_remove_container()
