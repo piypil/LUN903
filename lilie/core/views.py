@@ -16,11 +16,12 @@ from django.http import JsonResponse
 from multiprocessing import Queue
 from django.shortcuts import get_object_or_404
 
-from .models import Files, Results, ResultsSCA, ScannedProject
+from .models import Files, ResultsBandit, ResultsCodeQL, ResultsSCA, ScannedProject
 from .serializer import FilesSerializer, ScannedProjectSerializer
 from tqdm import tqdm
 from .kamille.FullScanParserZAP import FullScanParserZAP
 from .kamille.ZapScan import ZapScan
+from .kamille.CodeQLScan import CodeQLScan
 
 logger = logging.getLogger(__name__)
 
@@ -61,7 +62,8 @@ def connect_to_database():
     return conn
 
 def upload_file(progress_queue):
-    
+    DOCKER_CONTAINER_RUN = os.environ.get('DOCKER_CONTAINER_RUN', "False")
+
     global progress
     
     progress = 0
@@ -91,6 +93,11 @@ def upload_file(progress_queue):
         bandit_process.join()
         dependency_check_process.join()
 
+        base_path = "/shared/project_scan" if DOCKER_CONTAINER_RUN.lower() == "true" else "project_scan"
+        directory_path = os.path.join(base_path, str(file_hash))
+        codeql_scan = CodeQLScan(directory_path)
+        codeql_scan.scan_target_path()
+
         cur.close()
     conn.close()
 
@@ -99,14 +106,19 @@ def upload_file(progress_queue):
 
     with open(path + '/resultDependencyCheckScan/dependency-check-report.json', 'r') as json_file:
         results_sca = json.load(json_file)
+    
+    with open(path + '/gl-sast-report.json', 'r') as json_file:
+        results_codeql = json.load(json_file)
 
     file_instance = Files.objects.get(file_hash=file_hash)
 
     with transaction.atomic():
-        results_instance = Results(file=file_instance, result_data=results)
+        results_instance = ResultsBandit(file=file_instance, result_data=results)
         results_instance_sca = ResultsSCA(file=file_instance, result_data=results_sca)
+        results_instance_codeql = ResultsCodeQL(file=file_instance, result_data=results_codeql)
         results_instance.save()
         results_instance_sca.save()
+        results_instance_codeql.save()
 
 
 @api_view(['GET'])
@@ -139,7 +151,20 @@ class FilesViewSet(viewsets.ModelViewSet):
     
 class ResultsAPIView(APIView):
     def get(self, request, file_hash):
-        results = Results.objects.filter(file__file_hash=file_hash)
+        results = ResultsBandit.objects.filter(file__file_hash=file_hash)
+        data = []
+        for result in results:
+            result_data = {
+                'file_hash': result.file.file_hash,
+                'result_data': result.result_data,
+                'created_at': result.created_at
+            }
+            data.append(result_data)
+        return Response(data)
+
+class ResultsAPIViewCodeQl(APIView):
+    def get(self, request, file_hash):
+        results = ResultsCodeQL.objects.filter(file__file_hash=file_hash)
         data = []
         for result in results:
             result_data = {
