@@ -32,7 +32,7 @@ services:
       - localnet
 
   app-db:
-    image: postgres:latest
+    image: postgres:16.1-alpine@sha256:6cec07cb67f8e819dfe044dd6fc07d87c2c58051f90273d0d8c2611a4d24da16
     container_name: lun903-db
     env_file:
       - ../lilie/.env
@@ -41,9 +41,31 @@ services:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - localnet
+  
+  redis:
+    image: redis:7.2.3-alpine@sha256:aa9dc6761b6f8f71796b2ce3700d48472d2ab8a5494a2ff22dc7a0d90d77144e
+    container_name: lun903-redis
+    depends_on:
+      - app-lilie-backend
+  
+  dependency-track:
+    image: owasp/dependency-track:latest@sha256:efc65e702ee1691bd9e04bf30a89cae0ee12ec77e9601e9e46b2bcc625e60c0a
+    ports:
+      - "11488:8080"
+    volumes:
+      - dependency-track-data:/data
+    networks:
+      - localnet
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+
 
 volumes:
   shared-scan:
+    driver: local
+  dependency-track-data:
     driver: local
   postgres_data:
   static_volume:

@@ -12,21 +12,16 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.db import transaction
 from django.core.exceptions import AppRegistryNotReady
-from django.http import JsonResponse
-from multiprocessing import Queue
 from django.shortcuts import get_object_or_404
 
 from .models import Files, ResultsBandit, ResultsCodeQL, ResultsSCA, ScannedProject
 from .serializer import FilesSerializer, ScannedProjectSerializer
-from tqdm import tqdm
 from .kamille.FullScanParserZAP import FullScanParserZAP
 from .kamille.ZapScan import ZapScan
 from .kamille.CodeQLScan import CodeQLScan
 
 logger = logging.getLogger(__name__)
 
-progress_queue = Queue()
-progress = 0
 
 
 def get_last_uploaded_file_hash(cursor):
@@ -61,12 +56,8 @@ def connect_to_database():
     )
     return conn
 
-def upload_file(progress_queue):
+def upload_file_and_scan():
     DOCKER_CONTAINER_RUN = os.environ.get('DOCKER_CONTAINER_RUN', "False")
-
-    global progress
-    
-    progress = 0
 
     try:
         from .scan_helper import bandit_scan_worker, dependency_check_scan_worker
@@ -80,15 +71,10 @@ def upload_file(progress_queue):
         file_data = get_file_data(cur, file_hash)
         path = extract_zip_file(file_data, file_hash)
 
-        bandit_process = multiprocessing.Process(target=bandit_scan_worker, args=(path, progress_queue))
-        dependency_check_process = multiprocessing.Process(target=dependency_check_scan_worker, args=(path, progress_queue))
+        bandit_process = multiprocessing.Process(target=bandit_scan_worker, args=(path))
+        dependency_check_process = multiprocessing.Process(target=dependency_check_scan_worker, args=(path))
         bandit_process.start()
         dependency_check_process.start()
-
-        total_scans = 2
-        for _ in tqdm(range(total_scans), desc="Scanning", unit="scan"):
-            progress_queue.get()
-            progress += 50
 
         bandit_process.join()
         dependency_check_process.join()
@@ -121,11 +107,6 @@ def upload_file(progress_queue):
         results_instance_codeql.save()
 
 
-@api_view(['GET'])
-def get_scan_progress(request):
-    global progress
-    return JsonResponse({'progress': progress})
-
 class FilesViewSet(viewsets.ModelViewSet):
     serializer_class = FilesSerializer
     queryset = Files.objects.all()
@@ -134,7 +115,7 @@ class FilesViewSet(viewsets.ModelViewSet):
         response = super().create(request, *args, **kwargs)
 
         if response.status_code == 201:
-            upload_file(progress_queue)
+            upload_file_and_scan()
 
         return response
 

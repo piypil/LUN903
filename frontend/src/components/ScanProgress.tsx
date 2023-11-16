@@ -1,30 +1,26 @@
-import React, { useState, useEffect } from 'react';
-import { Progress } from 'antd';
-
-const API_BASE_URL = process.env.REACT_APP_API_URL;
+import React from 'react';
+import { LoadingOutlined } from '@ant-design/icons';
+import { Spin, Steps } from 'antd';
 
 const ScanProgress: React.FC = () => {
-  const [progress, setProgress] = useState(0);
-
-  useEffect(() => {
-    const fetchProgress = async () => {
-      try {
-        const response = await fetch(`${API_BASE_URL}/scan-progress/`);
-        const data = await response.json();
-        setProgress(data.progress);
-      } catch (error) {
-        console.error('Error fetching scan progress:', error);
-      }
-    };
-
-    const interval = setInterval(fetchProgress, 1000);
-    fetchProgress();
-
-    return () => clearInterval(interval);
-  }, []);
-
   return (
-    <Progress percent={progress} steps={2} />
+    <Steps
+      current={1}
+      items={[
+        {
+          title: 'Upload',
+        },
+        {
+          title: 'Scan',
+          icon: <Spin tip="Loading" size="large" indicator={<LoadingOutlined style={{ fontSize: 30, color: '#FFCF48' }} spin />}/>,
+          subTitle: 'Left 00:00:08',
+        },
+        {
+          title: 'Done',
+        },
+      ]}
+    />
+
   );
 };
 

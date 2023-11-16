@@ -77,7 +77,7 @@ export default function LayoutMenu({ children }: LayoutMenuProps) {
           color: theme === 'dark' ? '#fff' : '#000',
         }}>
           <Row gutter={16}>
-            <Col className="gutter-row" span={6}>
+            <Col className="gutter-row" span={2}>
               <div>
                 {React.createElement(collapsed ? MenuUnfoldOutlined : MenuFoldOutlined, {
                   className: 'trigger',
@@ -85,7 +85,7 @@ export default function LayoutMenu({ children }: LayoutMenuProps) {
                 })}
               </div>
             </Col>
-            <Col className="gutter-row" span={6}>
+            <Col className="gutter-row" span={10} style={{ padding: '14px' }}>
               <ScanProgress />
             </Col>
             <Col className="gutter-row" span={6} style={{ padding: '10px' }}>
