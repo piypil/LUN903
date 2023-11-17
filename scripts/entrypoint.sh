@@ -14,7 +14,7 @@ then
 
     sleep 5
 
-    python3 manage.py makemigrations core
+    python3 manage.py makemigrations lilie
     python3 manage.py migrate
     
 fi
