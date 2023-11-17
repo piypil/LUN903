@@ -23,7 +23,6 @@ from .kamille.CodeQLScan import CodeQLScan
 logger = logging.getLogger(__name__)
 
 
-
 def get_last_uploaded_file_hash(cursor):
     cursor.execute("SELECT file_hash FROM core_files ORDER BY uploaded_at DESC LIMIT 1;")
     return cursor.fetchone()[0]
@@ -229,7 +228,6 @@ class ResultsAPIViewDAST(APIView):
             return Response({'results': results})
         except ScannedProject.DoesNotExist:
             return Response({'error': 'Project not found'}, status=404)
-
 
 
 class ScannedProjectListView(generics.ListAPIView):

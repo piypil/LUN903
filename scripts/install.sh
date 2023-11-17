@@ -58,7 +58,7 @@ rm dependency-check-8.3.1-release.zip
 
 # Apply migrations and run server
 
-python3 lilie/manage.py makemigrations core 
+python3 lilie/manage.py makemigrations lilie 
 python3 lilie/manage.py migrate
 
 # Setup frontend

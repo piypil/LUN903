@@ -44,6 +44,7 @@ services:
   
   redis:
     image: redis:7.2.3-alpine@sha256:aa9dc6761b6f8f71796b2ce3700d48472d2ab8a5494a2ff22dc7a0d90d77144e
+    hostname: redis
     container_name: lun903-redis
     depends_on:
       - app-lilie-backend
