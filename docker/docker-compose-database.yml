@@ -10,3 +10,8 @@ services:
     volumes:
       - ../scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
     restart: unless-stopped
+  
+  redis:
+    image: redis:alpine@sha256:43076a37580453c7d2516cff8e4aa6b5a8af2c86366ff8b8b4bde0b0b1fb0c32
+    hostname: redis
+    container_name: lun903-redis

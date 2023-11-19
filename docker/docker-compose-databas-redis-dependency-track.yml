@@ -1,29 +1,39 @@
 version: '3.8'
 services:
+  app-lilie-backend:
+    build:
+      context: ..
+      dockerfile: ./docker/Dockerfile-lilie
+    container_name: lun903-lilie-backend
+    expose:
+      - "8000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - shared-scan:/shared/project_scan
+    depends_on:
+      - app-db
+    networks:
+      - localnet
+
   app-db:
     env_file:
       - ../lilie/.env
     image: postgres:latest
-    container_name: lun903-db-testing
+    container_name: lun903-db
     ports:
      - 5432:5432
     volumes:
       - ../scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
     restart: unless-stopped
-
-  dependency-track:
-    image: owasp/dependency-track:latest@sha256:efc65e702ee1691bd9e04bf30a89cae0ee12ec77e9601e9e46b2bcc625e60c0a
-    ports:
-      - "11488:8080"
-    deploy:
-      resources:
-        limits:
-          memory: 8G
+    networks:
+      - localnet
 
   redis:
-    image: redis:7.2.3-alpine@sha256:aa9dc6761b6f8f71796b2ce3700d48472d2ab8a5494a2ff22dc7a0d90d77144e
+    image: redis:alpine@sha256:43076a37580453c7d2516cff8e4aa6b5a8af2c86366ff8b8b4bde0b0b1fb0c32
     hostname: redis
     container_name: lun903-redis
+    networks:
+      - localnet
   
   worker:
     build:
@@ -31,13 +41,15 @@ services:
       dockerfile: ./docker/Dockerfile-lilie
     hostname: worker
     entrypoint: celery
-    command: -A celery_app.app worker --loglevel=info
+    command: -A core worker --loglevel=info
     volumes:
-      - ../lilie/lilie:/lilie
+      - ../lilie:/lilie
     links:
       - redis
     depends_on:
       - redis
+    networks:
+      - localnet
   
   flower:
     build:
@@ -45,13 +57,23 @@ services:
       dockerfile: ./docker/Dockerfile-lilie
     hostname: flower
     entrypoint: celery
-    command: -A celery_app.app flower
+    command: -A core flower
     volumes:
-      - ../lilie/lilie:/lilie
+      - ../lilie:/lilie
     links:
       - redis
     depends_on:
       - redis
     ports: 
       - '5555:5555'
+    networks:
+      - localnet
 
+volumes:
+  shared-scan:
+    driver: local
+
+networks:
+  localnet:
+    name: localnet
+    driver: bridge

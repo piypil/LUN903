@@ -81,7 +81,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'lilie.wsgi.application'
+WSGI_APPLICATION = 'core.wsgi.application'
 
 
 # Database
@@ -165,4 +165,4 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'uploads')
 
 CORS_ORIGIN_ALLOW_ALL = True
 
-CELERY_BROKER_URL = 'redis://redis/6379/0'
+CELERY_BROKER_URL = 'redis://redis:6379/0'
