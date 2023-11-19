@@ -1,7 +1,7 @@
 import subprocess
 import os
 
-class Bandit:
+class BanditScan:
     def __init__(self, path):
         self.path = path
     

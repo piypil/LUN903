@@ -1,109 +1,20 @@
-import zipfile
-import psycopg2
 import os
-import config
 import json
-import multiprocessing
 import logging
 
 from rest_framework.decorators import api_view
 from rest_framework import viewsets, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from django.db import transaction
-from django.core.exceptions import AppRegistryNotReady
 from django.shortcuts import get_object_or_404
 
 from .models import Files, ResultsBandit, ResultsCodeQL, ResultsSCA, ScannedProject
 from .serializer import FilesSerializer, ScannedProjectSerializer
 from .kamille.FullScanParserZAP import FullScanParserZAP
 from .kamille.ZapScan import ZapScan
-from .kamille.CodeQLScan import CodeQLScan
+from .tasks import upload_file_and_scan
 
 logger = logging.getLogger(__name__)
-
-
-def get_last_uploaded_file_hash(cursor):
-    cursor.execute("SELECT file_hash FROM core_files ORDER BY uploaded_at DESC LIMIT 1;")
-    return cursor.fetchone()[0]
-
-def get_file_data(cursor, file_hash):
-    cursor.execute("SELECT file FROM core_files WHERE file_hash = %s", (file_hash,))
-    result = cursor.fetchone()
-    print(f"Result for file_hash {file_hash}: {result}")
-    if result:
-        return result[0]
-    else:
-        print(f"No data found for file_hash: {file_hash}")
-        return None
-
-def extract_zip_file(file_data, random_id):
-    path = f"project_scan/{random_id}"
-    os.makedirs(path, exist_ok=True)
-    with open(f'uploads/{file_data}', 'rb') as file:
-        with zipfile.ZipFile(file) as myzip:
-            myzip.extractall(path=path)
-    return path
-
-def connect_to_database():
-    conn = psycopg2.connect(
-        dbname=config.POSTGRES_DB,
-        user=config.POSTGRES_USER,
-        password=config.POSTGRES_PASSWORD,
-        host=config.POSTGRES_HOST,
-        port=config.POSTGRES_PORT
-    )
-    return conn
-
-def upload_file_and_scan():
-    DOCKER_CONTAINER_RUN = os.environ.get('DOCKER_CONTAINER_RUN', "False")
-
-    try:
-        from .scan_helper import bandit_scan_worker, dependency_check_scan_worker
-    except AppRegistryNotReady:
-        pass
-    
-    conn = connect_to_database()
-
-    with conn.cursor() as cur:
-        file_hash = get_last_uploaded_file_hash(cur)
-        file_data = get_file_data(cur, file_hash)
-        path = extract_zip_file(file_data, file_hash)
-
-        bandit_process = multiprocessing.Process(target=bandit_scan_worker, args=(path))
-        dependency_check_process = multiprocessing.Process(target=dependency_check_scan_worker, args=(path))
-        bandit_process.start()
-        dependency_check_process.start()
-
-        bandit_process.join()
-        dependency_check_process.join()
-
-        base_path = "/shared/project_scan" if DOCKER_CONTAINER_RUN.lower() == "true" else "project_scan"
-        directory_path = os.path.join(base_path, str(file_hash))
-        codeql_scan = CodeQLScan(directory_path)
-        codeql_scan.scan_target_path()
-
-        cur.close()
-    conn.close()
-
-    with open(path + '/result', 'r') as json_file:
-        results = json.load(json_file)
-
-    with open(path + '/resultDependencyCheckScan/dependency-check-report.json', 'r') as json_file:
-        results_sca = json.load(json_file)
-    
-    with open(path + '/gl-sast-report.json', 'r') as json_file:
-        results_codeql = json.load(json_file)
-
-    file_instance = Files.objects.get(file_hash=file_hash)
-
-    with transaction.atomic():
-        results_instance = ResultsBandit(file=file_instance, result_data=results)
-        results_instance_sca = ResultsSCA(file=file_instance, result_data=results_sca)
-        results_instance_codeql = ResultsCodeQL(file=file_instance, result_data=results_codeql)
-        results_instance.save()
-        results_instance_sca.save()
-        results_instance_codeql.save()
 
 
 class FilesViewSet(viewsets.ModelViewSet):
@@ -114,7 +25,7 @@ class FilesViewSet(viewsets.ModelViewSet):
         response = super().create(request, *args, **kwargs)
 
         if response.status_code == 201:
-            upload_file_and_scan()
+            upload_file_and_scan.delay()
 
         return response
 

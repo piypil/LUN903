@@ -1,5 +1,20 @@
 version: '3.8'
 services:
+  nginx:
+    build:
+      context: ..
+      dockerfile: ./docker/Dockerfile-frontend
+    container_name: lun903-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ../nginx:/etc/nginx/conf.d
+      - static_volume:/static
+    depends_on:
+      - app-lilie-backend
+    networks:
+      - localnet
+
   app-lilie-backend:
     build:
       context: ..
@@ -10,6 +25,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - shared-scan:/shared/project_scan
+      - shared-uploads:/lilie/uploads/
     depends_on:
       - app-db
     networks:
@@ -44,10 +60,14 @@ services:
     command: -A core worker --loglevel=info
     volumes:
       - ../lilie:/lilie
+      - /var/run/docker.sock:/var/run/docker.sock
+      - shared-scan:/shared/project_scan
+      - shared-uploads:/lilie/uploads/
     links:
       - redis
     depends_on:
       - redis
+      - app-lilie-backend
     networks:
       - localnet
   
@@ -72,6 +92,12 @@ services:
 volumes:
   shared-scan:
     driver: local
+  shared-uploads:
+    driver: local
+  dependency-track-data:
+    driver: local
+  postgres_data:
+  static_volume:
 
 networks:
   localnet:
