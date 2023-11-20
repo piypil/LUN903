@@ -9,9 +9,10 @@ RUN apk add --no-cache openjdk11-jre unzip
 RUN pip3 install --no-cache-dir -r requirements.txt
 
 #DependencyCheck
-RUN wget https://github.com/jeremylong/DependencyCheck/releases/download/v8.3.1/dependency-check-8.3.1-release.zip
-RUN unzip dependency-check-8.3.1-release.zip
-RUN rm dependency-check-8.3.1-release.zip
+RUN wget https://github.com/jeremylong/DependencyCheck/releases/download/v8.3.1/dependency-check-8.3.1-release.zip && \
+    unzip -o dependency-check-8.3.1-release.zip && \
+    rm dependency-check-8.3.1-release.zip
+
 ENV PATH=$PATH:/lilie/dependency-check/bin
 
 COPY ./scripts/entrypoint.sh /lilie/entrypoint.sh

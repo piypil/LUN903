@@ -1,5 +1,12 @@
 #!/bin/bash
 
+FILE_HASH=$1
+
+if [ -z "$FILE_HASH" ]; then
+    echo "File hash not provided."
+    exit 1
+fi
+
 # List of supported languages and their extensions
 declare -A language_extensions
 language_extensions[python]=".py"
@@ -50,7 +57,7 @@ print_red() {
     echo -e "${RED}${1}${RESET}"
 }
 
-SRC=/opt/src
+SRC="/opt/src/$FILE_HASH"
 OUTPUT=$SRC
 RED="\033[31m"
 YELLOW="\033[33m"

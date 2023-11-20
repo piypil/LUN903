@@ -27,12 +27,14 @@ def get_file_data(cursor, file_hash):
         print(f"No data found for file_hash: {file_hash}")
         return None
 
-def extract_zip_file(file_data, random_id):
-    path = f"project_scan/{random_id}"
+def extract_zip_file(file_data, file_hash):
+    path = f"project_scan/{file_hash}"
+    path_shared = f"/shared/project_scan/{file_hash}"
     os.makedirs(path, exist_ok=True)
     with open(f'uploads/{file_data}', 'rb') as file:
         with zipfile.ZipFile(file) as myzip:
             myzip.extractall(path=path)
+            myzip.extractall(path=path_shared)
     return path
 
 def connect_to_database():
@@ -64,9 +66,9 @@ def upload_file_and_scan():
         dependency_scan = DependencyCheckScan(path)
         dependency_scan.scan_direct()
 
-        base_path = "/shared/project_scan" if DOCKER_CONTAINER_RUN.lower() == "true" else "project_scan"
-        directory_path = os.path.join(base_path, str(file_hash))
-        codeql_scan = CodeQLScan(directory_path)
+        base_path = "/shared/project_scan/" if DOCKER_CONTAINER_RUN.lower() == "true" else "project_scan/"
+        directory_path_codeql = f"{base_path}{file_hash}"
+        codeql_scan = CodeQLScan(directory_path_codeql, file_hash)
         codeql_scan.scan_target_path()
 
         cur.close()
@@ -78,7 +80,7 @@ def upload_file_and_scan():
     with open(path + '/resultDependencyCheckScan/dependency-check-report.json', 'r') as json_file:
         results_sca = json.load(json_file)
     
-    with open(path + '/gl-sast-report.json', 'r') as json_file:
+    with open(directory_path_codeql + '/gl-sast-report.json', 'r') as json_file:
         results_codeql = json.load(json_file)
 
     file_instance = Files.objects.get(file_hash=file_hash)
