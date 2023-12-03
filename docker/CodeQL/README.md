@@ -5,7 +5,11 @@
 
 ## Build
 ```bash
+Linux Ubuntu 22.04 LTS:
 docker build -t codeql-container .
+
+Mac M2 Platform:
+docker build --platform linux/amd64 -t codeql-container .
 ```
 
 ## Examples usage

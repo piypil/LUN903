@@ -13,7 +13,7 @@ services:
     depends_on:
       - app-lilie-backend
     networks:
-      - localnet
+      - frontend-network
 
   app-lilie-backend:
     build:
@@ -29,7 +29,8 @@ services:
     depends_on:
       - app-db
     networks:
-      - localnet
+      - backend-network
+      - frontend-network
 
   app-db:
     env_file:
@@ -42,14 +43,14 @@ services:
       - ../scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
     restart: unless-stopped
     networks:
-      - localnet
+      - backend-network
 
   redis:
     image: redis:alpine@sha256:43076a37580453c7d2516cff8e4aa6b5a8af2c86366ff8b8b4bde0b0b1fb0c32
     hostname: redis
     container_name: lun903-redis
     networks:
-      - localnet
+      - backend-network
   
   worker:
     build:
@@ -69,7 +70,7 @@ services:
       - redis
       - app-lilie-backend
     networks:
-      - localnet
+      - backend-network
   
   flower:
     build:
@@ -87,19 +88,20 @@ services:
     ports: 
       - '5555:5555'
     networks:
-      - localnet
+      - backend-network
 
 volumes:
   shared-scan:
     driver: local
   shared-uploads:
     driver: local
-  dependency-track-data:
-    driver: local
-  postgres_data:
   static_volume:
+    driver: local
 
 networks:
-  localnet:
-    name: localnet
+  frontend-network:
+    name: frontend-network
+    driver: bridge
+  backend-network:
+    name: backend-network
     driver: bridge
