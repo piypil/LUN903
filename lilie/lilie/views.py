@@ -82,7 +82,7 @@ class ResultsAPIViewSCA(APIView):
 class CodeAPIView(APIView):
     def get(self, request):
         file_path = request.GET.get('file_path', '')
-        file_full_path = os.path.join('project_scan/', file_path)
+        file_full_path = os.path.join('/shared/project_scan/', file_path)
         try:
             with open(file_full_path, 'r') as file:
                 code = file.read()

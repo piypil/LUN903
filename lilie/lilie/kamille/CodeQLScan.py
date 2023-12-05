@@ -32,7 +32,7 @@ class CodeQLScan:
     def scan_target_path(self):
         client = docker.from_env()
         volumes_config = {
-            'docker_shared-scan': {'bind': f'/opt/src/{self.file_hash}', 'mode': 'rw'}
+            'docker_shared-scan': {'bind': f'/opt/src/', 'mode': 'rw'}
         } if os.environ.get('DOCKER_CONTAINER_RUN', "False").lower() == "true" else {
             self.project_directory: {'bind': f'/opt/src/{self.file_hash}', 'mode': 'rw'}
         }
