@@ -1,11 +1,12 @@
 import React from 'react';
-import { Col, Row, Typography, Card } from 'antd';
+import { Typography, Card } from 'antd';
 import { UploadFile } from '../components/UploadFile';
 import { ScanDAST } from '../components/ScanDAST';
 import { AlertMessage } from '../components/AlertMessage';
 import LayoutMenu from '../layouts/LayoutMenu';
 import { useTheme } from '../components/ThemeContext';
 import { RecentScans } from '../components/RecentScans';
+import  GuidesList  from '../components/GuidesList'
 
 export function WelcomePage() {
   const { Title } = Typography;
@@ -39,7 +40,7 @@ export function WelcomePage() {
           </Card>
           <Card style={cardStyle}>
             <Title level={5} style={titleStyle}>Руководства</Title>
-            <div style={{ color: textColor }}>col-6</div>
+            <GuidesList />
           </Card>
         </div>
         <div>

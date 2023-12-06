@@ -92,7 +92,7 @@ def upload_file_and_scan():
                 logger.error(f"Ошибка при сканировании Dependency Check: {e}")
 
             base_path = "/shared/project_scan/" if DOCKER_CONTAINER_RUN.lower() == "true" else "project_scan/"
-            directory_path_codeql = f"/shared/project_scan/{file_hash}"
+            directory_path_codeql = f"{base_path}{file_hash}"
 
             try:
                 codeql_scan = CodeQLScan(directory_path_codeql, file_hash)
