@@ -46,7 +46,7 @@ class ZapScan:
 
         try:
             container = client.containers.run(
-                'zap-container',
+                'owasp/zap2docker-stable',
                 f'bash -c "zap.sh -cmd -addonupdate; zap.sh -cmd -autorun {container_config_path}"',
                 volumes=volumes_config,
                 user='root',
