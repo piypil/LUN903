@@ -1,15 +1,13 @@
-version: '3.8'
+version: '3.5'
 services:
-  nginx:
+  app-frontend:
     build:
       context: ..
-      dockerfile: ./docker/Dockerfile-frontend
-    container_name: lun903-nginx
+      dockerfile: ./docker/Dockerfile-frontend-dev
+    container_name: lun903-frontend
     ports:
-      - "80:80"
-    volumes:
-      - ../nginx:/etc/nginx/conf.d
-      - static_volume:/static
+      - 3000:3000
+    restart: unless-stopped
     depends_on:
       - app-lilie-backend
     networks:
@@ -20,8 +18,8 @@ services:
       context: ..
       dockerfile: ./docker/Dockerfile-lilie
     container_name: lun903-lilie-backend
-    expose:
-      - "8000"
+    ports:
+      - 8000:8000
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - shared-scan:/shared/project_scan

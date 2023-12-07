@@ -54,3 +54,5 @@ class CodeQLScan:
             logger.error(f"Ошибка запуска контейнера: {e}")
         except docker.errors.ImageNotFound:
             logger.error("Образ Docker не найден.")
+        except docker.errors.APIError as e:
+            logger.error(f"Ошибка Docker API: {e}")

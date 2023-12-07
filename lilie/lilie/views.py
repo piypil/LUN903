@@ -108,7 +108,7 @@ def scan_url(request):
     os.makedirs(directory_path, exist_ok=True)
 
     # Создаем и сохраняем конфигурационный файл ZAP
-    parser = FullScanParserZAP(url, directory_path)
+    parser = FullScanParserZAP(url, directory_path, str(project.uuid))
     parser.render_data()
 
     # Запускаем сканирование с помощью ZAP
