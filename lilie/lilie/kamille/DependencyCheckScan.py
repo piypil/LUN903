@@ -14,6 +14,3 @@ class DependencyCheckScan:
             print(f"Error occurred: {error.decode()}")
         else:
             print(output.decode())
-
-#dependency-check --prettyPrint --project DVWA -f JSON -s <PATH>
-# add project name

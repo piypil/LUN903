@@ -102,16 +102,17 @@ data = {
 
 class FullScanParserZAP:
 
-    def __init__(self, url, project_directory):
+    def __init__(self, url, project_directory, uuid):
         self.url = url
         self.project_directory = project_directory
+        self.uuid = uuid
 
     def render_data(self):
         data['env']['contexts'][0]['name'] = self.url
         data['env']['contexts'][0]['urls'] = [self.url]
         
         # Обновляем путь к директории отчета в контейнере
-        data['jobs'][-1]['parameters']['reportDir'] = "/zap/wrk/"
+        data['jobs'][-1]['parameters']['reportDir'] = f"/shared/project_scan/{self.uuid}"
         
         file_path = os.path.abspath(os.path.join(self.project_directory, "TargetProjectConfig.yaml"))
         with open(file_path, "w") as file:

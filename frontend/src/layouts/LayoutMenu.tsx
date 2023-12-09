@@ -12,7 +12,7 @@ import { Col, Row } from 'antd';
 import { Link } from "react-router-dom";
 import logo from '../assets/images/logo512.png';
 import Marquee from 'react-fast-marquee';
-import ScanProgress from '../components/ScanProgress';
+import TimeDisplay from '../components/TimeDisplay';
 import { useTheme } from '../components/ThemeContext';
 import { Alert } from 'antd';
 
@@ -77,7 +77,7 @@ export default function LayoutMenu({ children }: LayoutMenuProps) {
           color: theme === 'dark' ? '#fff' : '#000',
         }}>
           <Row gutter={16}>
-            <Col className="gutter-row" span={6}>
+            <Col className="gutter-row" span={2}>
               <div>
                 {React.createElement(collapsed ? MenuUnfoldOutlined : MenuFoldOutlined, {
                   className: 'trigger',
@@ -85,8 +85,8 @@ export default function LayoutMenu({ children }: LayoutMenuProps) {
                 })}
               </div>
             </Col>
-            <Col className="gutter-row" span={6}>
-              <ScanProgress />
+            <Col className="gutter-row" span={10} style={{ padding: '1px' }}>
+              <TimeDisplay />
             </Col>
             <Col className="gutter-row" span={6} style={{ padding: '10px' }}>
               <Alert

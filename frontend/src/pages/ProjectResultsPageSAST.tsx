@@ -96,6 +96,31 @@ interface Dependency {
 
 }
 
+interface CodeQLVulnerability {
+  id: string;
+  cve: string;
+  message: string;
+  scanner: {
+    id: string;
+    name: string;
+  };
+  category: string;
+  location: {
+    file: string;
+    end_line: number;
+    start_line: number;
+  };
+  severity: string;
+  confidence: string;
+  description: string;
+  identifiers: {
+    name: string;
+    type: string;
+    value: string;
+  }[];
+}
+
+
 const DependencyCard: React.FC<{ dependency: Dependency }> = ({ dependency }) => {
   if (!dependency.vulnerabilities || dependency.vulnerabilities.length === 0) {
     return null;
@@ -160,7 +185,10 @@ const ProjectResultsPageSAST: React.FC = () => {
   const [selectedVulnerability, setSelectedVulnerability] = useState<Vulnerability | null>(null);
 
   const [dependencies, setDependencies] = useState<Dependency[]>([]);
-  const [selectedDependency, setSelectedDependency] = useState<Dependency | null>(null);
+
+  const [qlVulnerabilities, setQlVulnerabilities] = useState<CodeQLVulnerability[]>([]);
+  const [selectedCodeQLVulnerability, setSelectedCodeQLVulnerability] = useState<CodeQLVulnerability | null>(null);
+
 
   const [code, setCode] = useState<string>('');
   const codeContainerRef = useRef<HTMLDivElement>(null);
@@ -184,31 +212,52 @@ const ProjectResultsPageSAST: React.FC = () => {
       axios.get(`${API_BASE_URL}/files/${fileHash}/`),
       axios.get(`${API_BASE_URL}/results/${fileHash}/`),
       axios.get(`${API_BASE_URL}/results-sca/${fileHash}/`),
+      axios.get(`${API_BASE_URL}/results-ql/${fileHash}/`),
     ])
-      .then(([projectResponse, resultsResponse, scaResponse]) => {
+      .then(([projectResponse, resultsResponse, scaResponse, codeqlResponse]) => {
         const projectData = projectResponse.data;
         const resultsData = resultsResponse.data;
         setProjectName(projectData.name);
         setVulnerabilities(resultsData[0]?.result_data?.results || []);
         setDependencies(scaResponse.data[0].result_data.dependencies);
+        setQlVulnerabilities(codeqlResponse.data[0]?.result_data?.vulnerabilities || []);
       })
       .catch((error) => {
         console.error(error);
       });
   }, [fileHash]);
 
-  const handleRowClick = (record: Vulnerability) => {
-    setSelectedVulnerability(record);
-    fetchCode(record.filename);
+  const handleRowClick = (record: Vulnerability | CodeQLVulnerability) => {
+    if ('location' in record) {
+      setSelectedCodeQLVulnerability(record as CodeQLVulnerability);
+      setSelectedVulnerability(null);
 
-    if (codeContainerRef.current && record.line_number) {
-      const lineNumber = record.line_number - 1;
-      const lineElements = codeContainerRef.current.getElementsByClassName('CodeMirror-line');
-      if (lineElements.length > lineNumber) {
-        lineElements[lineNumber].scrollIntoView({ block: 'center' });
+      fetchCode(record.location.file);
+
+      if (codeContainerRef.current && record.location.start_line) {
+        const lineNumber = record.location.start_line - 1;
+        scrollToLine(lineNumber);
+      }
+    } else if ('filename' in record) {
+      setSelectedVulnerability(record as Vulnerability);
+      setSelectedCodeQLVulnerability(null);
+
+      fetchCode(record.filename);
+
+      if (codeContainerRef.current && record.line_number) {
+        const lineNumber = record.line_number - 1;
+        scrollToLine(lineNumber);
       }
     }
   };
+
+  const scrollToLine = (lineNumber: number) => {
+    const lineElements = codeContainerRef.current?.getElementsByClassName('CodeMirror-line');
+    if (lineElements && lineElements.length > lineNumber) {
+      lineElements[lineNumber].scrollIntoView({ block: 'center' });
+    }
+  };
+
 
   const shortenPathApi = (path: string): string => {
     const marker = '/lilie/';
@@ -243,8 +292,27 @@ const ProjectResultsPageSAST: React.FC = () => {
   };
 
   const categories = Array.from(new Set(vulnerabilities.map((vuln) => vuln.test_name)));
-
+  const selectedVulnerabilityDetails = selectedVulnerability
+    ? {
+      title: selectedVulnerability.test_name,
+      description: selectedVulnerability.issue_text,
+      cwe: selectedVulnerability.issue_cwe.id,
+      cweLink: selectedVulnerability.issue_cwe.link,
+      severity: selectedVulnerability.issue_severity,
+      confidence: selectedVulnerability.issue_confidence,
+    }
+    : selectedCodeQLVulnerability
+      ? {
+        title: "CodeQL Vulnerability",
+        description: selectedCodeQLVulnerability.description,
+        cwe: "N/A",
+        cweLink: null,
+        severity: selectedCodeQLVulnerability.severity,
+        confidence: "N/A",
+      }
+      : null;
   return (
+
     <div className={theme === 'dark' ? 'dark-theme' : ''}>
       <LayoutMenu>
         <Title
@@ -286,15 +354,23 @@ const ProjectResultsPageSAST: React.FC = () => {
                       {vulnerabilities
                         .filter((vuln) => vuln.test_name === category)
                         .map((vuln) => (
-                          <Menu.Item onClick={() => handleRowClick(vuln)}>
+                          <Menu.Item key={vuln.code} onClick={() => handleRowClick(vuln)}>
                             {shortenPath(vuln.filename)}
                           </Menu.Item>
-                        ))}
+                        ))
+                      }
                     </Menu.SubMenu>
                   ))}
+                  <Menu.SubMenu key="CodeQL Vulnerabilities" title="CodeQL Vulnerabilities" icon={<AppstoreOutlined />}>
+                    {qlVulnerabilities.map((vuln, index) => (
+                      <Menu.Item key={`codeql-${index}`} onClick={() => handleRowClick(vuln)}>
+                        {vuln.location.file}
+                      </Menu.Item>
+                    ))}
+                  </Menu.SubMenu>
                 </Menu>
-                {selectedVulnerability && (
-                  <Card title={<span style={{ color: theme === 'dark' ? '#fff' : '#000' }}>{selectedVulnerability.test_name}</span>}
+                {selectedVulnerabilityDetails && (
+                  <Card title={<span style={{ color: theme === 'dark' ? '#fff' : '#000' }}>{selectedVulnerabilityDetails.title}</span>}
                     bodyStyle={{
                       backgroundColor: theme === 'dark' ? '#191B26' : '#FFFFFF',
                       padding: '20px',
@@ -306,7 +382,7 @@ const ProjectResultsPageSAST: React.FC = () => {
                       color: theme === 'dark' ? '#fff' : '#000',
                     }}
                     className={`${theme}-theme`}>
-                    <p>{selectedVulnerability.issue_text}</p>
+                    <p>{selectedVulnerabilityDetails.description}</p>
                     <Descriptions
                       contentStyle={{
                         color: 'red',
@@ -323,9 +399,12 @@ const ProjectResultsPageSAST: React.FC = () => {
                           backgroundColor: theme === 'dark' ? '#121920' : '#FFFFFF',
                           color: theme === 'dark' ? '#fff' : '#000',
                         }}>
-                        <a href={selectedVulnerability.issue_cwe.link} target="_blank" rel="noopener noreferrer">
-                          {selectedVulnerability.issue_cwe.id}
-                        </a>
+                        {selectedVulnerabilityDetails.cweLink
+                          ? <a href={selectedVulnerabilityDetails.cweLink} target="_blank" rel="noopener noreferrer">
+                            {selectedVulnerabilityDetails.cwe}
+                          </a>
+                          : selectedVulnerabilityDetails.cwe
+                        }
                       </Descriptions.Item>
                       <Descriptions.Item label="Severity"
                         style={{
@@ -335,8 +414,8 @@ const ProjectResultsPageSAST: React.FC = () => {
                           backgroundColor: theme === 'dark' ? '#121920' : '#FFFFFF',
                           color: theme === 'dark' ? '#fff' : '#000',
                         }}>
-                        <Tag color={getColor(selectedVulnerability.issue_severity)}>
-                          {selectedVulnerability.issue_severity}
+                        <Tag color={getColor(selectedVulnerabilityDetails.severity)}>
+                          {selectedVulnerabilityDetails.severity}
                         </Tag>
                       </Descriptions.Item>
                       <Descriptions.Item label="Confidence"
@@ -347,9 +426,7 @@ const ProjectResultsPageSAST: React.FC = () => {
                           backgroundColor: theme === 'dark' ? '#121920' : '#FFFFFF',
                           color: theme === 'dark' ? '#fff' : '#000',
                         }}>
-                        <Tag color={getColor(selectedVulnerability.issue_confidence)}>
-                          {selectedVulnerability.issue_confidence}
-                        </Tag>
+                        {selectedVulnerabilityDetails.confidence}
                       </Descriptions.Item>
                     </Descriptions>
                   </Card>

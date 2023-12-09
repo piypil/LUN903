@@ -1,18 +1,25 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from .views import FilesViewSet, ResultsAPIView, ResultsAPIViewDAST, ResultsAPIViewSCA, CodeAPIView, scan_url, get_scan_progress, ScannedProjectListView
+"""lilie URL Configuration
 
-router = DefaultRouter()
+The `urlpatterns` list routes URLs to views. For more information please see:
+    https://docs.djangoproject.com/en/4.1/topics/http/urls/
+Examples:
+Function views
+    1. Add an import:  from my_app import views
+    2. Add a URL to urlpatterns:  path('', views.home, name='home')
+Class-based views
+    1. Add an import:  from other_app.views import Home
+    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
+Including another URLconf
+    1. Import the include() function: from django.urls import include, path
+    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
+"""
+from django.contrib import admin
+from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
-    path('api/', include(router.urls)),
-    path('api/results/<str:file_hash>/', ResultsAPIView.as_view(), name='results-api'),
-    path('api/results-sca/<str:file_hash>/', ResultsAPIViewSCA.as_view(), name='results-api-sca'),
-    path('api/results-url/<str:uuid>/', ResultsAPIViewDAST.as_view(), name='results-api-url'),
-    path('api/scan-progress/', get_scan_progress),
-    path('api/code/', CodeAPIView.as_view(), name='code-api'),
-    path('api/scan-url/', scan_url, name='scan_url'),
-    path('api/dast-projects/', ScannedProjectListView.as_view(), name='scanned-projects-list'),
-    path('api/files/', FilesViewSet.as_view({'get': 'list', 'post': 'create'}), name='files-list-create'),
-    path('api/files/<str:file_hash>/', FilesViewSet.as_view({'get': 'retrieve'}), name='file-detail-by-hash'),
-]
+    path('admin/', admin.site.urls),
+    path('', include('lilie.urls')),
+
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

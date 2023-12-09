@@ -1,5 +1,4 @@
-version: "3.8"
-
+version: '3.8'
 services:
   nginx:
     build:
@@ -14,7 +13,7 @@ services:
     depends_on:
       - app-lilie-backend
     networks:
-      - localnet
+      - frontend-network
 
   app-lilie-backend:
     build:
@@ -26,29 +25,97 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - shared-scan:/shared/project_scan
+      - shared-uploads:/lilie/uploads/
     depends_on:
       - app-db
     networks:
-      - localnet
+      - backend-network
+      - frontend-network
 
   app-db:
-    image: postgres:latest
-    container_name: lun903-db
     env_file:
       - ../lilie/.env
+    image: postgres:latest
+    container_name: lun903-db
+    ports:
+     - 5432:5432
     volumes:
       - ../scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
-      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
     networks:
-      - localnet
+      - backend-network
+
+  dependency-track:
+    image: owasp/dependency-track:latest@sha256:efc65e702ee1691bd9e04bf30a89cae0ee12ec77e9601e9e46b2bcc625e60c0a
+    ports:
+      - "11488:8080"
+    volumes:
+      - shared-uploads:/lilie/uploads/
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+    networks:
+      - backend-network
+
+  redis:
+    image: redis:alpine@sha256:43076a37580453c7d2516cff8e4aa6b5a8af2c86366ff8b8b4bde0b0b1fb0c32
+    hostname: redis
+    container_name: lun903-redis
+    networks:
+      - backend-network
+  
+  worker:
+    build:
+      context: ..
+      dockerfile: ./docker/Dockerfile-lilie
+    hostname: worker
+    entrypoint: celery
+    command: -A core worker --loglevel=info
+    volumes:
+      - ../lilie:/lilie
+      - /var/run/docker.sock:/var/run/docker.sock
+      - shared-scan:/shared/project_scan
+      - shared-uploads:/lilie/uploads/
+    links:
+      - redis
+    depends_on:
+      - redis
+      - app-lilie-backend
+    networks:
+      - backend-network
+  
+  flower:
+    build:
+      context: ..
+      dockerfile: ./docker/Dockerfile-lilie
+    hostname: flower
+    entrypoint: celery
+    command: -A core flower
+    volumes:
+      - ../lilie:/lilie
+    links:
+      - redis
+    depends_on:
+      - redis
+    ports: 
+      - '5555:5555'
+    networks:
+      - backend-network
 
 volumes:
   shared-scan:
     driver: local
-  postgres_data:
+  shared-uploads:
+    driver: local
   static_volume:
+    driver: local
 
 networks:
-  localnet:
-    name: localnet
+  frontend-network:
+    name: frontend-network
     driver: bridge
+  backend-network:
+    name: backend-network
+    driver: bridge
+    

@@ -15,7 +15,12 @@ class Files(models.Model):
     project_id = models.CharField(max_length=10)
     file_hash = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
-class Results(models.Model):
+class ResultsBandit(models.Model):
+    file = models.ForeignKey(Files, on_delete=models.CASCADE)
+    result_data = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class ResultsCodeQL(models.Model):
     file = models.ForeignKey(Files, on_delete=models.CASCADE)
     result_data = models.JSONField()
     created_at = models.DateTimeField(auto_now_add=True)

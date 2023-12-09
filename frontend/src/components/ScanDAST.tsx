@@ -1,39 +1,43 @@
 import React, { useState } from 'react';
-import { Button, Form, Input, message, Space, Modal, Switch } from 'antd';
-import { SettingOutlined } from '@ant-design/icons';
+import { Button, Form, Input, message, Space, Modal, Switch, Upload } from 'antd';
+import { SettingOutlined, UploadOutlined } from '@ant-design/icons';
+import { UploadChangeParam } from 'antd/lib/upload';
+import CodeMirror from '@uiw/react-codemirror';
+import { langs } from '@uiw/codemirror-extensions-langs';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL;
+
+const initialYamlConfig: string = "TEST";
+
 
 interface FormValues {
   url: string;
   projectName: string;
+  openApiFile: any;
+  envParams: string;
 }
 
 export function ScanDAST() {
   const [form] = Form.useForm();
   const [projectName, setProjectName] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
+  const [fileList, setFileList] = useState<any[]>([]);
 
   const onFinish = async (values: FormValues) => {
-    const { url, projectName } = values;
+    const formData = new FormData();
+    // Добавление файла, если он есть
+    if (fileList.length > 0) {
+      formData.append('openApiFile', fileList[0].originFileObj);
+    }
+    // Добавление остальных значений из формы
+    formData.append('url', values.url);
+    formData.append('projectName', values.projectName);
+    formData.append('envParams', values.envParams);
     try {
       const response = await fetch(`${API_BASE_URL}/scan-url/`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ url, projectName }),
+        body: formData,
       });
-      const textResponse = await response.text();
-      console.log("Raw server response:", textResponse);
-
-      const data = JSON.parse(textResponse);
-      if (response.ok) {
-        message.success(data.message || 'Scan started successfully!');
-      } else {
-        console.error("Server Response:", data); 
-        message.error(data.error || 'Error starting scan.');
-      }
     } catch (error) {
       console.error("Fetch Error:", error);
       message.error('Error starting scan.');
@@ -46,6 +50,12 @@ export function ScanDAST() {
 
   const toggleModal = () => {
     setModalVisible(!modalVisible);
+  };
+
+  const onFileChange = (info: UploadChangeParam) => {
+    let newFileList = [...info.fileList];
+    newFileList = newFileList.slice(-1);
+    setFileList(newFileList);
   };
 
   return (
@@ -75,15 +85,11 @@ export function ScanDAST() {
         <Space direction="vertical" style={{ width: '100%' }}>
           <Space direction="vertical" style={{ width: '100%' }}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
-              <span style={{ width: '150px' }}>AJAX Spider</span>
+              <span style={{ width: '150px' }}>Full Scan</span>
               <Switch />
             </div>
             <div style={{ display: 'flex', alignItems: 'center' }}>
-              <span style={{ width: '150px' }}>Default Spider</span>
-              <Switch />
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <span style={{ width: '150px' }}>Active Scan</span>
+              <span style={{ width: '150px' }}>Fast Scan</span>
               <Switch />
             </div>
           </Space>
@@ -96,16 +102,40 @@ export function ScanDAST() {
             </Button>
             <Button icon={<SettingOutlined />} onClick={toggleModal} style={{ marginLeft: '8px' }}></Button>
           </div>
-          <Modal
+          <Modal forceRender={true}
             title="Settings"
             visible={modalVisible}
-            onOk={toggleModal}
+            onOk={() => {
+              form.validateFields().then(values => {
+                onFinish(values);
+                toggleModal();
+              }).catch(info => {
+                console.log('Validate Failed:', info);
+              });
+            }}
             onCancel={toggleModal}
             centered
           >
+            <Form.Item name="openApiFile" label="OpenAPI Specification File">
+              <Upload
+                onRemove={() => setFileList([])}
+                beforeUpload={() => false}
+                fileList={fileList}
+                onChange={onFileChange}
+              >
+                <Button icon={<UploadOutlined />}>Select File</Button>
+              </Upload>
+            </Form.Item>
+
+            <Form.Item name="envParams" label="ENV ZAP Settings">
+              <CodeMirror
+                value={"xnjsdfsdfds"}
+              />
+            </Form.Item>
+
           </Modal>
         </Space>
-      </div>
-    </div>
+      </div >
+    </div >
   );
 }

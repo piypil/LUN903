@@ -1,0 +1,59 @@
+version: "3.8"
+services:
+  app-lilie-backend:
+    build:
+      context: ..
+      dockerfile: ./docker/Dockerfile-lilie
+    container_name: lun903-lilie-backend
+    ports:
+      - 8000:8000
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - shared-data:/lilie/project_scan
+    depends_on:
+      - app-db
+    networks:
+      - localnet
+  app-frontend:
+    build:
+      context: ..
+      dockerfile: ./docker/Dockerfile-frontend
+    container_name: lun903-frontend
+    ports:
+      - 3000:3000
+    restart: unless-stopped
+    depends_on:
+      - app-lilie-backend
+    networks:
+      - localnet
+  app-db:
+    env_file:
+      - ../lilie/.env
+    image: postgres:latest
+    container_name: lun903-db
+    ports:
+      - 5432:5432
+    volumes:
+      - ../scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+    networks:
+      - localnet
+
+  dependency-track:
+    image: owasp/dependency-track:latest@sha256:efc65e702ee1691bd9e04bf30a89cae0ee12ec77e9601e9e46b2bcc625e60c0a
+    ports:
+      - "11488:8080"
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+
+volumes:
+  shared-data:
+    driver: local
+
+networks:
+  localnet:
+    name: localnet
+    driver: bridge

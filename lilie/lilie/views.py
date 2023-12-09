@@ -1,118 +1,21 @@
-import zipfile
-import psycopg2
 import os
-import config
 import json
-import multiprocessing
 import logging
 
 from rest_framework.decorators import api_view
 from rest_framework import viewsets, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from django.db import transaction
-from django.core.exceptions import AppRegistryNotReady
-from django.http import JsonResponse
-from multiprocessing import Queue
 from django.shortcuts import get_object_or_404
 
-from .models import Files, Results, ResultsSCA, ScannedProject
+from .models import Files, ResultsBandit, ResultsCodeQL, ResultsSCA, ScannedProject
 from .serializer import FilesSerializer, ScannedProjectSerializer
-from tqdm import tqdm
 from .kamille.FullScanParserZAP import FullScanParserZAP
 from .kamille.ZapScan import ZapScan
+from .tasks import upload_file_and_scan
 
 logger = logging.getLogger(__name__)
 
-progress_queue = Queue()
-progress = 0
-
-
-def get_last_uploaded_file_hash(cursor):
-    cursor.execute("SELECT file_hash FROM core_files ORDER BY uploaded_at DESC LIMIT 1;")
-    return cursor.fetchone()[0]
-
-def get_file_data(cursor, file_hash):
-    cursor.execute("SELECT file FROM core_files WHERE file_hash = %s", (file_hash,))
-    result = cursor.fetchone()
-    print(f"Result for file_hash {file_hash}: {result}")
-    if result:
-        return result[0]
-    else:
-        print(f"No data found for file_hash: {file_hash}")
-        return None
-
-def extract_zip_file(file_data, random_id):
-    path = f"project_scan/{random_id}"
-    os.makedirs(path, exist_ok=True)
-    with open(f'uploads/{file_data}', 'rb') as file:
-        with zipfile.ZipFile(file) as myzip:
-            myzip.extractall(path=path)
-    return path
-
-def connect_to_database():
-    conn = psycopg2.connect(
-        dbname=config.POSTGRES_DB,
-        user=config.POSTGRES_USER,
-        password=config.POSTGRES_PASSWORD,
-        host=config.POSTGRES_HOST,
-        port=config.POSTGRES_PORT
-    )
-    return conn
-
-def upload_file(progress_queue):
-    
-    global progress
-    
-    progress = 0
-
-    try:
-        from .scan_helper import bandit_scan_worker, dependency_check_scan_worker
-    except AppRegistryNotReady:
-        pass
-    
-    conn = connect_to_database()
-
-    with conn.cursor() as cur:
-        file_hash = get_last_uploaded_file_hash(cur)
-        file_data = get_file_data(cur, file_hash)
-        path = extract_zip_file(file_data, file_hash)
-
-        bandit_process = multiprocessing.Process(target=bandit_scan_worker, args=(path, progress_queue))
-        dependency_check_process = multiprocessing.Process(target=dependency_check_scan_worker, args=(path, progress_queue))
-        bandit_process.start()
-        dependency_check_process.start()
-
-        total_scans = 2
-        for _ in tqdm(range(total_scans), desc="Scanning", unit="scan"):
-            progress_queue.get()
-            progress += 50
-
-        bandit_process.join()
-        dependency_check_process.join()
-
-        cur.close()
-    conn.close()
-
-    with open(path + '/result', 'r') as json_file:
-        results = json.load(json_file)
-
-    with open(path + '/resultDependencyCheckScan/dependency-check-report.json', 'r') as json_file:
-        results_sca = json.load(json_file)
-
-    file_instance = Files.objects.get(file_hash=file_hash)
-
-    with transaction.atomic():
-        results_instance = Results(file=file_instance, result_data=results)
-        results_instance_sca = ResultsSCA(file=file_instance, result_data=results_sca)
-        results_instance.save()
-        results_instance_sca.save()
-
-
-@api_view(['GET'])
-def get_scan_progress(request):
-    global progress
-    return JsonResponse({'progress': progress})
 
 class FilesViewSet(viewsets.ModelViewSet):
     serializer_class = FilesSerializer
@@ -122,7 +25,7 @@ class FilesViewSet(viewsets.ModelViewSet):
         response = super().create(request, *args, **kwargs)
 
         if response.status_code == 201:
-            upload_file(progress_queue)
+            upload_file_and_scan.delay()
 
         return response
 
@@ -139,7 +42,20 @@ class FilesViewSet(viewsets.ModelViewSet):
     
 class ResultsAPIView(APIView):
     def get(self, request, file_hash):
-        results = Results.objects.filter(file__file_hash=file_hash)
+        results = ResultsBandit.objects.filter(file__file_hash=file_hash)
+        data = []
+        for result in results:
+            result_data = {
+                'file_hash': result.file.file_hash,
+                'result_data': result.result_data,
+                'created_at': result.created_at
+            }
+            data.append(result_data)
+        return Response(data)
+
+class ResultsAPIViewCodeQl(APIView):
+    def get(self, request, file_hash):
+        results = ResultsCodeQL.objects.filter(file__file_hash=file_hash)
         data = []
         for result in results:
             result_data = {
@@ -166,7 +82,7 @@ class ResultsAPIViewSCA(APIView):
 class CodeAPIView(APIView):
     def get(self, request):
         file_path = request.GET.get('file_path', '')
-        file_full_path = os.path.join('project_scan/', file_path)
+        file_full_path = os.path.join('/shared/project_scan/', file_path)
         try:
             with open(file_full_path, 'r') as file:
                 code = file.read()
@@ -192,7 +108,7 @@ def scan_url(request):
     os.makedirs(directory_path, exist_ok=True)
 
     # Создаем и сохраняем конфигурационный файл ZAP
-    parser = FullScanParserZAP(url, directory_path)
+    parser = FullScanParserZAP(url, directory_path, str(project.uuid))
     parser.render_data()
 
     # Запускаем сканирование с помощью ZAP
@@ -223,7 +139,6 @@ class ResultsAPIViewDAST(APIView):
             return Response({'results': results})
         except ScannedProject.DoesNotExist:
             return Response({'error': 'Project not found'}, status=404)
-
 
 
 class ScannedProjectListView(generics.ListAPIView):
