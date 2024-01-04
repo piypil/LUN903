@@ -38,5 +38,5 @@
 ## Итог
 
 <p align="center">
-	<img src="/docs/diagrams/png/Image4LUN904.png" height="300px"/>
+	<img src="/docs/diagrams/png/Image4LUN903.png" height="300px"/>
 </p>
