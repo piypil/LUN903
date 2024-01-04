@@ -1,4 +1,4 @@
-name: "SecSAST"
+name: "SAST"
 on:
   push:
     branches:
