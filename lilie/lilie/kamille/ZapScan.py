@@ -63,4 +63,4 @@ class ZapScan:
         except docker.errors.APIError as e:
             logger.error(f"Ошибка Docker API: {e}")
 
-        # self.stop_and_remove_container()
+        self.stop_and_remove_container()

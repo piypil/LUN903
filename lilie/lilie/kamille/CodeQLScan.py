@@ -56,3 +56,6 @@ class CodeQLScan:
             logger.error("Образ Docker не найден.")
         except docker.errors.APIError as e:
             logger.error(f"Ошибка Docker API: {e}")
+        
+        self.stop_and_remove_container()
+        
