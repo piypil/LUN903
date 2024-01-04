@@ -30,6 +30,7 @@
 
 ## Возможный запуск
 Тестироваине проводилось только на Ubuntu 22.04
+    
     $ git clone https://github.com/piypil/LUN903.git
     $ cd LUN903/docker
     $ docker-compose up
@@ -37,5 +38,5 @@
 ## Итог
 
 <p align="center">
-	<img src="/docs/diagrams/png/Image3LUN904.png" height="300px"/>
+	<img src="/docs/diagrams/png/Image4LUN904.png" height="300px"/>
 </p>
