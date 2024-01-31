@@ -30,7 +30,7 @@
 
 Общая схема работы проекта (Инструменты):
 <p align="center">
-	<img src="/docs/diagrams/png/Image3LUN903.png" height="300px"/>
+	<img src="/docs/diagrams/png/Image3LUN903.png"/>
 </p>
 
 ## Возможный запуск
