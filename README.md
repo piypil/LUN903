@@ -25,6 +25,11 @@
 
 Общая схема работы проекта:
 <p align="center">
+	<img src="/docs/diagrams/png/Image5LUN903.png" height="300px"/>
+</p>
+
+Общая схема работы проекта (Инструменты):
+<p align="center">
 	<img src="/docs/diagrams/png/Image3LUN903.png" height="300px"/>
 </p>
 
