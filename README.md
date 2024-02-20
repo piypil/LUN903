@@ -13,9 +13,24 @@
 	<img src="/docs/diagrams/png/Image1LUN903.png" height="300px"/>
 </p>
 
+Проводник:
+<p align="center">
+	<img src="/docs/diagrams/png/Image6LUN903.png" height="300px"/>
+</p>
+
 Результаты SAST:
 <p align="center">
 	<img src="/docs/diagrams/png/Image2LUN903.png" height="300px"/>
+</p>
+
+Результаты SCA:
+<p align="center">
+	<img src="/docs/diagrams/png/Image7LUN903.png" height="300px"/>
+</p>
+
+Результаты DAST:
+<p align="center">
+	<img src="/docs/diagrams/png/Image8LUN903.png" height="300px"/>
 </p>
 
 ## Инструменты
